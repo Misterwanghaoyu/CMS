@@ -1,61 +1,70 @@
-import React from 'react'
-import { useEffect,useRef } from "react";
-import * as echarts from "echarts";
-export default function PieChart() {
-  const chartRef = useRef(null);
-  useEffect(() => {
-    let chartInstance = echarts.init(chartRef.current);
+import React, { useEffect, useRef } from 'react';
+import * as echarts from 'echarts';
 
+interface PieChartProps {
+  style?: React.CSSProperties;
+}
+
+const PieChart: React.FC<PieChartProps> = ({ style }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const chart = echarts.init(chartRef.current);
     const option = {
-      title: {
-        text: 'Referer of a Website',
-        subtext: 'Fake Data',
-        left: 'center'
-      },
       tooltip: {
         trigger: 'item'
       },
-      toolbox: {
-        feature: {
-          saveAsImage: {}
-        }
-      },
       legend: {
-        orient: 'vertical',
-        left: 'left'
+        orient: 'horizontal',
+        bottom: 'bottom'
       },
       series: [
         {
-          name: 'Access From',
+          name: '破解情况',
           type: 'pie',
-          radius: '50%',
-          data: [
-            { value: 1048, name: 'Search Engine' },
-            { value: 735, name: 'Direct' },
-            { value: 580, name: 'Email' },
-            { value: 484, name: 'Union Ads' },
-            { value: 300, name: 'Video Ads' }
-          ],
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
+          label: {
+            show: false,
+            position: 'center'
+          },
           emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            label: {
+              show: true,
+              fontSize: 20,
+              fontWeight: 'bold'
             }
-          }
+          },
+          labelLine: {
+            show: false
+          },
+          data: [
+            { value: 81, name: '破解为"是"', itemStyle: { color: '#1890ff' } },
+            { value: 19, name: '破解为"否"', itemStyle: { color: '#ff4d4f' } }
+          ]
         }
       ]
     };
-    chartInstance.setOption(option);
 
-  }, [])
-  return (
-    <div style={{ textAlign: "center" }}>
+    chart.setOption(option);
 
+    const handleResize = () => {
+      chart.resize();
+    };
+    window.addEventListener('resize', handleResize);
 
-      <div ref={chartRef} style={{ height: "400px" }}></div>
+    return () => {
+      chart.dispose();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
+  return <div ref={chartRef} style={{ height: '300px', ...style }} />;
+};
 
-    </div>
-  )
-}
+export default PieChart;

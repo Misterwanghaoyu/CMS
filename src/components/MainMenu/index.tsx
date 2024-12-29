@@ -1,61 +1,17 @@
-import {
-  DesktopOutlined,
-  FileOutlined,
-  HomeOutlined,
-  PictureOutlined,
-  PieChartOutlined,
-  ReadOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+
 import { useState } from 'react';
-import { Menu } from 'antd';
+import { ConfigProvider, Menu, theme } from 'antd';
 import { useNavigate, useLocation } from "react-router-dom"
+import type { MenuProps, MenuTheme } from 'antd';
+import { routeData } from '@/router';
+import { convertRoutesToMenuItems } from '@/utils/convertFunctions';
 // 登录请求到数据之后，就可以跟items这个数组进行匹配
-export const routeItems:NavMenuItemType[]= [
-  {
-    label: '首页',
-    key: '/page1',
-    icon: <HomeOutlined />
-  },
-  {
-    label: '用户',
-    key: '/page2',
-    icon: <UserOutlined />
-  },
-  {
-    label: '案件管理',
-    key: '/page3',
-    icon: <ReadOutlined />
-  },
-  {
-    label: '图表',
-    key: '/page4',
-    icon: <PictureOutlined />
-    // children:[
-    //   {
-    //     label: '栏目 401',
-    //     key: '/page4/page401',
-    //   },
-    //   {
-    //     label: '栏目 304',
-    //     key: '/page4/page402',
-    //   }
-    // ]
-  },
-  {
-    label: '字段配置',
-    key: '/page5',
-    icon: <ReadOutlined />
-  },
-]
+
 
 const MainMenu: React.FC = () => {
   const navigateTo = useNavigate()
   const currentRoute = useLocation();
-
-  console.log("----------", currentRoute.pathname); // currentRoute.pathname:   "/page3/page301"
-
+  const navItems = convertRoutesToMenuItems(routeData);
   const menuClick = (e: { key: string }) => {
     // 点击跳转到对应的路由   编程式导航跳转， 利用到一个hook
     navigateTo(e.key);
@@ -70,11 +26,11 @@ const MainMenu: React.FC = () => {
     return obj.key === currentRoute.pathname
   }
   // 多对比的是多个children
-  for (let i = 0; i < routeItems.length; i++) {
+  for (let i = 0; i < navItems.length; i++) {
     // 判断找到不到
     // @ts-ignore
-    if (routeItems[i]!['children'] && routeItems[i]!['children'].length > 0 && items[i]!['children'].find(findKey)) {
-      firstOpenKey = routeItems[i]!.key as string;
+    if (navItems[i]!['children'] && navItems[i]!['children'].length > 0 && navItems[i]!['children'].find(findKey)) {
+      firstOpenKey = navItems[i]!.key as string;
       break;
     }
   }
@@ -90,21 +46,34 @@ const MainMenu: React.FC = () => {
     // console.log(keys); 
   }
   return (
-    <Menu
-      theme="dark"
-      // defaultSelectedKeys 表示当前样式所在的选中项的key
-      defaultSelectedKeys={[currentRoute.pathname]}
-      style={{borderRadius:"10px"}}
-      mode="inline"
-      // 菜单项的数据
-      items={routeItems}
-      onClick={menuClick}
-      // 某项菜单展开和回收的事件
-      onOpenChange={handleOpenChange}
-      // 当前菜单展开项的key数组
-      openKeys={openKeys}
-    />
-    
+    <ConfigProvider
+      theme={{
+        components: {
+          Menu: {
+            "colorText":"#fff",
+            "itemBg": "rgb(24,144,255)",
+            "subMenuItemBg":"rgb(24,144,255)"
+          },
+        },
+      }}
+    >
+      <Menu
+        // defaultSelectedKeys 表示当前样式所在的选中项的key
+        // theme='dark'
+        defaultSelectedKeys={[currentRoute.pathname]}
+        style={{ height: "100%" }}
+        mode="inline"
+        // 菜单项的数据
+        items={navItems}
+        onClick={menuClick}
+        // 某项菜单展开和回收的事件
+        onOpenChange={handleOpenChange}
+        // 当前菜单展开项的key数组
+        openKeys={openKeys}
+      />
+    </ConfigProvider>
+
+
   )
 }
 export default MainMenu;

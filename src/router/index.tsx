@@ -1,71 +1,168 @@
-import React,{ lazy } from "react"
+import React, { lazy } from "react"
 // Navigate重定向组件
-import {Navigate} from "react-router-dom"
-
-import Home from  "../views/Home"
+import { Navigate } from "react-router-dom"
+import {
+  CloudUploadOutlined,
+  HomeOutlined,
+  LineChartOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import Home from "../views/Home"
 // import About from  "../views/About"
 // import User from  "../views/User"
-import Login from  "../views/Login"
-const About = lazy(()=>import("../views/Page3"))
-const Page1 = lazy(()=>import("../views/Page1"))
-const Page2 = lazy(()=>import("../views/Page2"))
-const Page3 = lazy(()=>import("../views/Page3"))
-const Page4 = lazy(()=>import("../views/Page4"))
-const Page5 = lazy(()=>import("../views/Page5"))
+import Login from "../views/login"
+import { convertRoutesToRouteItems } from "@/utils/convertFunctions";
+import { Skeleton } from "antd";
+import NotFoundPage from "@/views/404";
+import NoPermissionPage from "@/views/403";
+const Main = lazy(() => import("../views/main"))
+const Data = lazy(() => import("../views/data"))
+const User = lazy(() => import("../views/user"))
+const Backup = lazy(() => import("../views/backup"))
+
+const DataAdd = lazy(() => import("../views/data/add"))
+const DataSearch = lazy(() => import("../views/data/search"))
+const DataUpdate = lazy(() => import("../views/data/update"))
+
+const UserInformation = lazy(() => import("../views/user/information"))
+const UserLogs = lazy(() => import("../views/user/logs"))
 
 // 报错A component suspended while responding to synchronous input. This will cause the UI to be replaced with a loading indicator. 
 // 懒加载的模式的组件的写法，外面需要套一层 Loading 的提示加载组件
 
 
-const withLoadingComponent = (comp:JSX.Element) => (
-  <React.Suspense fallback={<div>Loading...</div>}>
+const withLoadingComponent = (comp: JSX.Element) => (
+  <React.Suspense fallback={<Skeleton active />}>
     {comp}
   </React.Suspense>
 )
-
-const routes:RouteItemType[] = [
-  //  嵌套路由 开始-------------------
+export const routeData: RouteDataItemType[] = [
   {
-    path:"/",
-    element:<Navigate to="/page1"/>
+    key: 'main',
+    path: 'main',
+    component: withLoadingComponent(<Main />),
+    meta: {
+      title: '首页',
+      icon: <HomeOutlined />
+    },
   },
   {
-    path:"/",
-    element: <Home />,
-    children:[
+    key: 'data',
+    path: 'data',
+    component: withLoadingComponent(<Data />),
+    meta: {
+      title: '数据信息',
+      icon: <LineChartOutlined />,
+    },
+    children: [
       {
-        path:"/page1",
-        element: withLoadingComponent(<Page1 />)
+        key: 'add',
+        path: 'add',
+        component: withLoadingComponent(<DataAdd />),
+        meta: {
+          title: '数据录入',
+          // icon: <OrderedListOutlined/>
+        },
       },
       {
-        path:"/page2",
-        element: withLoadingComponent(<Page2 />)
+        key: 'search',
+        path: 'search',
+        component: withLoadingComponent(<DataSearch />),
+        meta: {
+          title: '数据查询',
+          // icon:  <OrderedListOutlined/>
+        },
       },
       {
-        path:"/page3",
-        element: withLoadingComponent(<Page3 />)
+        key: 'update',
+        path: 'update',
+        component: withLoadingComponent(<DataUpdate />),
+        meta: {
+          title: '数据修改',
+          disabled: true
+          // icon: <OrderedListOutlined/>
+        },
+      },
+    ],
+  },
+  {
+    key: 'user',
+    path: 'user',
+    component: withLoadingComponent(<User />),
+    meta: {
+      title: '用户管理',
+      icon: <UserOutlined />,
+    },
+    children: [
+      {
+        key: 'information',
+        path: 'information',
+        component: withLoadingComponent(<UserInformation />),
+        meta: {
+          title: '用户信息',
+          // icon: <OrderedListOutlined/>
+        },
       },
       {
-        path:"/page4",
-        element: withLoadingComponent(<Page4 />)
-      },
-      {
-        path:"/page5",
-        element: withLoadingComponent(<Page5 />)
+        key: 'logs',
+        path: 'logs',
+        component: withLoadingComponent(<UserLogs />),
+        meta: {
+          title: '日志详情',
+          // icon:  <OrderedListOutlined/>
+        },
       }
-    ]
+    ],
   },
-  // 嵌套路由 结束-------------------
   {
-    path:"/login",
+    key: 'backup',
+    path: 'backup',
+    component: withLoadingComponent(<Backup />),
+    meta: {
+      title: '数据备份与修复',
+      icon: <CloudUploadOutlined />
+    },
+  }
+]
+const routes: RouteItemType[] = [
+
+  {
+    path: "/login",
     element: <Login />
   },
-  // 访问其余路径的时候直接跳到首页
   {
-    path:"*",
-    element:<Navigate to="/page1"/>
+    path: "/",
+    element: <Navigate to="/main" />,
+  },
+  {
+    path: "/403",
+    element: <NoPermissionPage/>
+  },
+  {
+    path: "/404",
+    element: <NotFoundPage/>
+  },
+  {
+    path: "/data",
+    element: <Navigate to="/data/search" />
+  },
+  {
+    path: "/user",
+    element: <Navigate to="/user/information" />
+  },
+  //  嵌套路由 开始-------------------
+  {
+    path: "/",
+    element: <Home />,
+    children: convertRoutesToRouteItems(routeData)
+  },
+  // 嵌套路由 结束-------------------
+
+  {
+    path: "*",
+    element: <Navigate to="/404" />
   }
-  
+
   // {
   //   path:"/home",
   //   element: <Home />
@@ -73,7 +170,7 @@ const routes:RouteItemType[] = [
   // {
   //   path:"/about",
   //   element: withLoadingComponent(<About />)
-   
+
   // },
   // {
   //   path:"/user",

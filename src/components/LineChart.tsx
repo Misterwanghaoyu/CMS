@@ -1,83 +1,69 @@
 import React from 'react'
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
-export default function LineChart() {
+interface LineChartProps {
+  style?: React.CSSProperties;
+}
+const LineChart: React.FC<LineChartProps> = ({ style }) => {
   const chartRef = useRef(null);
+
   useEffect(() => {
-    let chartInstance = echarts.init(chartRef.current);
+    if (!chartRef.current) return;
+    const chart = echarts.init(chartRef.current);
     const option = {
-      title: {
-        text: 'Stacked Line'
-      },
       tooltip: {
         trigger: 'axis'
       },
       legend: {
-        data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine']
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      toolbox: {
-        feature: {
-          saveAsImage: {}
-        }
+        data: ['检材总数', '检材总容量']
       },
       xAxis: {
         type: 'category',
-        boundaryGap: false,
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        data: ['18D', '19D', '20D', '21D', '22D', '23D', '24D']
       },
-      yAxis: {
-        type: 'value'
-      },
+      yAxis: [
+        {
+          type: 'value',
+          name: '检材总数',
+          min: 0
+        },
+        {
+          type: 'value',
+          name: '容量(MB)',
+          min: 0
+        }
+      ],
       series: [
         {
-          name: 'Email',
+          name: '检材总数',
           type: 'line',
-          stack: 'Total',
-          data: [120, 132, 101, 134, 90, 230, 210]
+          data: [20, 30, 15, 80, 70, 60, 20]
         },
         {
-          name: 'Union Ads',
+          name: '检材总容量',
           type: 'line',
-          stack: 'Total',
-          data: [220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-          name: 'Video Ads',
-          type: 'line',
-          stack: 'Total',
-          data: [150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-          name: 'Direct',
-          type: 'line',
-          stack: 'Total',
-          data: [320, 332, 301, 334, 390, 330, 320]
-        },
-        {
-          name: 'Search Engine',
-          type: 'line',
-          stack: 'Total',
-          data: [820, 932, 901, 934, 1290, 1330, 1320]
+          yAxisIndex: 1,
+          data: [60, 80, 40, 60, 30, 70, 20]
         }
       ]
     };
 
-    chartInstance.setOption(option);
 
+    chart.setOption(option);
+    const handleResize = () => {
+      chart.resize();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      chart.dispose();
+      window.removeEventListener('resize', handleResize);
+    };
+
+  
+    
   }, [])
-  return (
-    <div style={{ textAlign: "center" }}>
 
-
-      <div ref={chartRef} style={{ height: "400px" }}></div>
-
-
-    </div>
-  )
+    return <div ref={chartRef} style={{ height: '300px',  ...style }} />;
+  
 }
+export default LineChart;

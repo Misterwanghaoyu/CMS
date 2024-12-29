@@ -2,29 +2,6 @@ import { useEffect } from 'react'
 import { useRoutes, useLocation,useNavigate } from "react-router-dom"
 import router from "./router"
 import { message } from "antd"
-
-// 去往登录页的组件
-// function ToLogin(){
-//   const navigateTo = useNavigate()
-//   // 加载完这个组件之后实现跳转
-//   useEffect(()=>{
-//     // 加载完组件之后执行这里的代码
-//     navigateTo("/login");
-//     message.warning("您还没有登录，请登录后再访问！");
-//   },[])
-//   return <div></div>
-// }
-// // 去往首页的组件
-// function ToPage1(){
-//   const navigateTo = useNavigate()
-//   // 加载完这个组件之后实现跳转
-//   useEffect(()=>{
-//     // 加载完组件之后执行这里的代码
-//     navigateTo("/page1");
-//     message.warning("您已经登录过了！");
-//   },[])
-//   return <div></div>
-// }
 function ToWhatPage(url:string,warningStr:string){
   const navigateTo = useNavigate()
   // 加载完这个组件之后实现跳转
@@ -38,7 +15,7 @@ function ToWhatPage(url:string,warningStr:string){
 // 手写封装路由守卫
 function BeforeRouterEnter(){
   const outlet = useRoutes(router);
-  const AdminPages=["/page3","/page4"]
+  const AdminPages=["/user/information"]
   /*
     后台管理系统两种经典的跳转情况：
     1、如果访问的是登录页面， 并且有token， 跳转到首页
@@ -52,7 +29,7 @@ function BeforeRouterEnter(){
     //1、如果访问的是登录页面， 并且有token， 跳转到首页
     if(location.pathname==="/login" && token){
       // 这里不能直接用 useNavigate 来实现跳转 ，因为需要BeforeRouterEnter是一个正常的JSX组件
-      ToWhatPage("/page1","您已经登录过了！")
+      ToWhatPage("/main","您已经登录过了！")
     }
     //2、如果访问的不是登录页面，并且没有token， 跳转到登录页
     if(location.pathname!=="/login" && !token){
@@ -62,7 +39,7 @@ function BeforeRouterEnter(){
     //2、如果访问的不是登录页面，并且没有token， 跳转到登录页
     
     if(AdminPages.includes(location.pathname) && user.permissions==="User"){
-      ToWhatPage("/page1","无权访问！")
+      ToWhatPage("/403","无权访问！")
     }
     return outlet
 }
