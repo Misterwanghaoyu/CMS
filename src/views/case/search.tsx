@@ -1,14 +1,11 @@
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { App, Button, Col, DatePicker, Flex, Form, Input, Popconfirm, Row, Select, Space, Table, TableColumnsType, TableProps, Tag } from 'antd'
+import { App, Button, DatePicker, Flex, Form, Input, Popconfirm, Select, Space, Table, TableColumnsType, TableProps, Tag } from 'antd'
 import moment from 'moment';
-import React, { ChangeEvent, ReactElement, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
-import ExcelJS from 'exceljs'
 import { useNavigate } from 'react-router-dom';
 import { exportAsExcel } from '@/utils/convertFunctions';
-import axios from 'axios';
-import { deleteCaseMultiple, deleteDecryptionCase, deleteJudicialCase, searchCase, updateCase } from '@/request/api';
-import useCustomNotification from '@/hooks/useCustomNotification';
+import { caseApi } from '@/request/api';
 type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'];
 export default function Search() {
   const [form] = Form.useForm();
@@ -48,7 +45,7 @@ export default function Search() {
   }
   const handleDelete = (item: CaseDataType) => {
     if (item.commission_matters === "司法鉴定") {
-      deleteJudicialCase([item.judicial_id]).then(
+      caseApi.deleteJudicialCase([item.judicial_id]).then(
         res => {
           notification.success({
             message: '成功',
@@ -70,7 +67,7 @@ export default function Search() {
       }
       )
     } else {
-      deleteDecryptionCase([item.decryption_id]).then(
+      caseApi.deleteDecryptionCase([item.decryption_id]).then(
         res => {
           notification.success({
             message: '成功',
@@ -154,11 +151,11 @@ export default function Search() {
   const handleMultipleDelete = () => {
     if (selectedRowKeys.length === 0) return message.error("请至少选择一条数据")
     const items = dataSource.filter((item) => selectedRowKeys.includes(item.key))
-    deleteCaseMultiple(items)
+    caseApi.deleteCaseMultiple(items)
   }
 
   const handleSearch = (searchForm: CaseSearchType) => {
-    searchCase(searchForm).then(
+    caseApi.searchCase(searchForm).then(
       res => {
         notification.success({
           message: '成功',

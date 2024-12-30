@@ -16,13 +16,13 @@ import { Skeleton } from "antd";
 import NotFoundPage from "@/views/404";
 import NoPermissionPage from "@/views/403";
 const Main = lazy(() => import("../views/main"))
-const Data = lazy(() => import("../views/data"))
+const Data = lazy(() => import("../views/case"))
 const User = lazy(() => import("../views/user"))
 const Backup = lazy(() => import("../views/backup"))
 
-const DataAdd = lazy(() => import("../views/data/add"))
-const DataSearch = lazy(() => import("../views/data/search"))
-const DataUpdate = lazy(() => import("../views/data/update"))
+const DataAdd = lazy(() => import("../views/case/add"))
+const DataSearch = lazy(() => import("../views/case/search"))
+const DataUpdate = lazy(() => import("../views/case/update"))
 
 const UserInformation = lazy(() => import("../views/user/information"))
 const UserLogs = lazy(() => import("../views/user/logs"))

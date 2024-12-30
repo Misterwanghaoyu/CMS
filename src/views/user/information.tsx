@@ -1,53 +1,30 @@
 
 import AddEditUserModal from "@/components/AddEditUserModal";
-import { addUser, deleteUser, searchUserById } from "@/request/api";
+import { userApi } from "@/request/api";
 import {
   Button,
   Form,
   Input,
-  message,
-  Modal,
-  Popover,
-  Radio,
   Table,
-  Select,
   Space,
-  ConfigProvider,
-  Breadcrumb,
-  BreadcrumbProps,
   Card,
-  TableProps,
   TableColumnsType,
   Popconfirm,
-  // Watermark,
+  App,
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { debounce, throttle } from "lodash"
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-const fakeData = [
-  {
-    id: "001",
-    username: "Admin",
-    contact_way: "114514@163.com",
-    name: "Li",
-    permission: "管理员",
-  },
-  {
-    id: "002",
-    username: "User",
-    contact_way: "1145141919810",
-    name: "Wang",
-    permission: "普通用户",
-  },
-]
+
 export default function Information() {
   const [params, setParams] = useState({
     current: 1,
     size: 10,
     searchValue: "",
   });
+  const { message, notification } = App.useApp();
 
-  const [userList, setUserList] = useState<any[]>([]);
+  const [userList, setUserList] = useState<UserDataType[]>([]);
   const total = useMemo(() => userList.length, [userList])
 
 
@@ -75,29 +52,45 @@ export default function Information() {
   const [form] = Form.useForm();
   const handleEdit = (item: UserDataType) => {
     //将当前行的数据赋值给表单
+    
     form.setFieldsValue(item);
     setIsUpdate(true);
     setIsModalOpen(true);
   };
-  const handleDelete = (item: UserDataType) => {
-    deleteUser([item.userId]).then(
+  const handleDelete = (userId: number) => {
+    userApi.deleteUser([userId]).then(
       res => {
-        notification.success("删除成功")
-        form.resetFields()
-        setIsModalOpen(false)
+        if (res.code === 0) {
+          notification.success({
+            message: "成功",
+            description: "删除成功"
+          })
+          reFetch()
+        } else {
+          notification.error({
+            message: "错误",
+            description: res.message
+          })
+        }
       },
       rej => {
-        notification.error("something wrong,request rejcted.")
+        notification.error({
+          message: "错误",
+          description: "something wrong,request rejcted."
+        })
       }
     ).catch(err => {
-      notification.error(err.message)
+      notification.error({
+        message: "错误",
+        description: err.message
+      })
     }
     )
   }
   const columns: TableColumnsType<UserDataType> = [
     {
       title: "编号",
-      dataIndex: "id",
+      dataIndex: "userId",
       width: 100,
     },
     {
@@ -107,18 +100,28 @@ export default function Information() {
     },
     {
       title: "联系方式",
-      dataIndex: "contact_way",
-      key: "contact_way",
+      dataIndex: "mobile",
+      key: "mobile",
     },
     {
       title: "姓名",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "realName",
+      key: "realName",
+    },
+    {
+      title: "性别",
+      dataIndex: "sex",
+      key: "sex",
+    },
+    {
+      title: "邮箱",
+      dataIndex: "email",
+      key: "email",
     },
     {
       title: "权限",
-      dataIndex: "permission",
-      key: "permission",
+      dataIndex: "roleId",
+      key: "roleId",
     },
     {
       title: "操作",
@@ -130,7 +133,7 @@ export default function Information() {
           <Popconfirm
             title="删除用户"
             description="确认删除此用户?"
-            onConfirm={() => handleDelete(record)}
+            onConfirm={() => handleDelete(record.userId)}
             okText="是"
             cancelText="否"
           >
@@ -141,35 +144,74 @@ export default function Information() {
     },
   ];
 
-  const handleUserSearch = () => {
-    const userId = params.searchValue
-    searchUserById({
-      userId
-    }).then(
+  const handleUserSearch = (value:string) => {
+
+    if(value.length===0) return
+    userApi.searchUserById(value).then(
       res => {
-        notification.success("数据已更新")
-        form.resetFields()
-        setIsModalOpen(false)
+        if (res.code === 0) {
+          notification.success({
+            message: "成功",
+            description: "查询成功"
+          })
+          setUserList([res.data])
+        }else{
+          notification.error({
+            message: "错误",
+            description: res.message
+          })
+        }
       },
-      rej => {
-        notification.error("something wrong,request rejcted.")
+      rej => {  
+        notification.error({
+          message: "错误",
+          description: "something wrong,request rejcted."
+        })
       }
     ).catch(err => {
-      notification.error(err.message)
+      notification.error({
+        message: "错误",
+        description: err.message
+      })
     }
     )
-    // setUserList(fakeData);
   }
-  useEffect(useCallback(debounce(handleUserSearch, 1000), []), [params]); //监听搜索参数的变化，如果变化了，就重新获取数据
+  const reFetch = () => {
+    userApi.getAllUser().then(res => {
+      if (res.code === 0) {
+        setUserList(res.data)
+      } else {
+        notification.error({
+          message: "错误",
+          description: "something wrong,request rejcted."
+        })
+      }
+    }, rej => {
+      notification.error({
+        message: "错误",
+        description: "something wrong,request rejcted."
+      })
+    }).catch(err => {
+      notification.error(err.message)
+    })
+  }
+  useEffect(() => {
+    reFetch()
+  }, [])
+  // const debounceSearch = useCallback(debounce(handleUserSearch, 1000), [])
+  // useEffect(()=>{
+  //   debounceSearch(params.searchValue)
+  // }, [params]); //监听搜索参数的变化，如果变化了，就重新获取数据
 
   return (
     <>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Space>
           <Button type="primary" onClick={handleAddUserButton}>新增用户</Button>
-          <Input
-            value={params.searchValue}
-            onChange={(e) => setParams({ ...params, searchValue: e.target.value })}
+          <Input.Search
+            // value={params.searchValue}
+            // onChange={(e) => setParams({ ...params, searchValue: e.target.value })}
+            onSearch={(value)=>handleUserSearch(value)}
             style={{ width: "200px" }}
             allowClear
             placeholder="输入用户ID查询"
@@ -177,7 +219,7 @@ export default function Information() {
         </Space>
         {/* <ConfigProvider locale={zhCN}> */}
         <Table
-          rowKey={(record) => record.id}
+          rowKey={(record) => record.userId}
           onRow={(record) => ({
             onClick: () => setSelectedRowItem(record)
           })}
@@ -196,12 +238,12 @@ export default function Information() {
         >
         </Table>
       </Space>
-      <AddEditUserModal isModalOpen={isModalOpen} isUpdate={isUpdate} setIsModalOpen={setIsModalOpen} form={form} />
-      {selectedRowItem && <Card size="default" title={selectedRowItem.name} style={{ width: "100%" }}
+      <AddEditUserModal selectedRowItem={selectedRowItem} isModalOpen={isModalOpen} isUpdate={isUpdate} setIsModalOpen={setIsModalOpen} form={form} reFetch={reFetch} />
+      {selectedRowItem && <Card size="default" title={selectedRowItem.realName} style={{ width: "100%" }}
       >
         <p>客户ID：{selectedRowItem.userId}</p>
-        <p>联系方式：{selectedRowItem.contact_way}</p>
-        <p>权限：{selectedRowItem.permission}</p>
+        <p>联系方式：{selectedRowItem.mobile}</p>
+        <p>权限：{selectedRowItem.roleId}</p>
       </Card>}
     </>
   )

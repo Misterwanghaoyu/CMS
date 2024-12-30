@@ -1,89 +1,47 @@
-import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, ConfigProvider, Upload, UploadProps, message, Flex, App } from 'antd';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex } from 'antd';
+import { useEffect, useMemo, useState } from 'react'
 import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
 import DecryptionForm from '@/components/DecryptionForm';
-
 import { UploadOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { importExcel } from '@/utils/convertFunctions';
-import { addDecryptionCase, addJudicialCase, updateCase } from '@/request/api';
-import useCustomNotification from '@/hooks/useCustomNotification';
-export default function DataAddPage() {
+import { caseApi } from '@/request/api';
+export default function DataUpdatePage() {
   const location = useLocation();
-  const { message, notification } = App.useApp();
-  const [commissionMatters, setCommissionMatters] = useState<"司法鉴定" | "破译解密" | undefined>(location.state?.editItem.commission_matters)
+  const navigatorTo=useNavigate()
+  const [commissionMatters, setCommissionMatters] = useState<string | undefined>(location.state?.editItem.commission_matters)
   const [editRowData] = useState<any>({ is_cracking: false })
   const [form] = Form.useForm();
-  const handleCancle = () => {
-    setCommissionMatters(undefined)
+  const handleReturn = () => {
     form.resetFields()
+    navigatorTo(-1)
   }
+  useEffect(()=>{
+    if(location.state){
+      form.setFieldsValue(location.state.editItem)
+    }
+  })
   const whichForm = useMemo(() => {
     if (commissionMatters === "司法鉴定") return <JudicialIdentificationForm />
     else if (commissionMatters === "破译解密") return <DecryptionForm isCrakingProp={editRowData.is_cracking} />
     else return <></>
   }, [commissionMatters, editRowData])
-  const handleAddCase = (caseForm: CaseDataType) => {
-    // const { data } = await blogApi.saveBlog(blogForm);
-    if (commissionMatters === "司法鉴定") {
-      addJudicialCase(caseForm).then(
-        res => {
-          notification.success({
-            message: '成功',
-            description: '数据新增成功'
-          })
-          form.resetFields()
-        },
-        rej => {
-          notification.error({
-            message: '错误',
-            description: 'something wrong,request rejcted.'
-          })
-        }
-      ).catch(err => {
-        notification.error({
-          message: '错误',
-          description: err.message
-        })
-      }
-      )
-    } else {
-      addDecryptionCase(caseForm).then(
-        res => {
-          notification.success({
-            message: '成功',
-            description: '数据新增成功'
-          })
-          form.resetFields()
-        },
-        rej => {
-          notification.error({
-            message: '错误',
-            description: 'something wrong,request rejcted.'
-          })
-        }
-      ).catch(err => {
-        notification.error({
-          message: '错误',
-          description: err.message
-        })
-      }
-      )
-    }
-
+  const handleUpdateCase = async (caseForm: any) => {
+    caseApi.updateCase(caseForm)
   };
+
+
   return (
     <Form
       layout="vertical"
       form={form}
       style={{ maxWidth: "90%" }}
       initialValues={{ remember: true }}
-      onFinish={handleAddCase}
+      onFinish={handleUpdateCase}
       autoComplete="off"
     >
       <Flex justify='space-between'>
         <Typography.Title level={5} style={{ margin: "0 0 10px 0" }}>基本信息</Typography.Title>
-
         <Button >
           <input type="file" onChange={importExcel} style={{ position: "absolute", width: "100%", height: "100%", opacity: 0, cursor: "pointer" }} />
           <UploadOutlined />
@@ -105,7 +63,6 @@ export default function DataAddPage() {
               allowClear
               onChange={(value) => setCommissionMatters(value)}
               value={commissionMatters}
-              // defaultValue={commissionMatters}
               options={[
                 {
                   value: "司法鉴定",
@@ -151,15 +108,14 @@ export default function DataAddPage() {
           </Form.Item>
         </Col>
       </Row>
-
       {whichForm}
       <Form.Item>
         <Space style={{ display: "flex", justifyContent: "right" }}>
           <Button type="primary" htmlType="submit">
             提交
           </Button>
-          <Button onClick={handleCancle}>
-            重置
+          <Button onClick={handleReturn}>
+            返回
           </Button>
         </Space>
       </Form.Item>

@@ -22,7 +22,6 @@ interface RouteItemType{
   children?:RouteItemType[]
 }
 interface CaseDataType {
-  key: React.Key
   case_id: string
   judicial_id?: string
   decryption_id?:string
@@ -34,12 +33,16 @@ interface CaseDataType {
   // operation: ReactElement
 }
 interface UserDataType {
-  userId: string,
-  username: string,
-  contact_way: string,
-  name: string,
-  permission: string,
-  // operation: ReactElement
+  userId: number;
+  username: string;
+  mobile: string;
+  realName: string; 
+  deptId: number
+  avatar: string 
+  sex: number;
+  email: string 
+  remark: string 
+  roleId: number
 }
 
 interface CaseSearchType {

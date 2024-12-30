@@ -47,7 +47,7 @@ const View = () => {
   // 顶部卡片数据
   const cardData = [
     {
-      title: '总编号案件数量',
+      title: '总案件数量',
       value: 1263,
       icon: <FileOutlined style={{ fontSize: 24 }} />,
       color: '#E8F3EE'
@@ -70,24 +70,27 @@ const View = () => {
       <Col span={18} >
 
         {/* 顶部统计卡片 */}
-        <Row gutter={16}>
-          {cardData.map(item => (
-            <Col span={8} key={item.title}>
-              <Card
-                style={{
-                  background: item.color,
-                  borderRadius: '8px',
-                  marginBottom: '24px'
-                }}
-              >
-                <Space align="center">
-                  {item.icon}
-                  <Statistic title={item.title} value={item.value} />
-                </Space>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <DatePicker.RangePicker />
+          <Row gutter={16}>
+            {cardData.map(item => (
+              <Col span={8} key={item.title}>
+                <Card
+                  style={{
+                    background: item.color,
+                    borderRadius: '8px',
+                    marginBottom: '24px'
+                  }}
+                >
+                  <Space align="center">
+                    {item.icon}
+                    <Statistic title={item.title} value={item.value} />
+                  </Space>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Space>
         {/* 司法鉴定部分 */}
         <Card
           title="司法鉴定"
@@ -97,29 +100,7 @@ const View = () => {
             <Col span={12}>
               <Card bordered={false}>
                 <Flex vertical >
-                  <Flex justify="space-between" >
-                    <Select
-                      style={{
-                        width: "33%",
-                      }}
-                      placeholder={"选择类别"}
-                      allowClear
-                      // onChange={(value) => setCommissionMatters(value)}
-                      // value={commissionMatters}
-                      // defaultValue={commissionMatters}
-                      options={[
-                        {
-                          value: "司法鉴定",
-                          label: "司法鉴定",
-                        },
-                        {
-                          value: "破译解密",
-                          label: "破译解密",
-                        }
-                      ]}
-                    />
-                    <DatePicker.RangePicker />
-                  </Flex>
+                  <DatePicker.RangePicker />
                   <LineChart />
                 </Flex>
               </Card>
@@ -142,29 +123,7 @@ const View = () => {
             <Col span={12}>
               <Card bordered={false}>
                 <Flex vertical>
-                  <Flex justify="space-between" >
-                    <Select
-                      style={{
-                        width: "33%",
-                      }}
-                      placeholder={"选择类别"}
-                      allowClear
-                      // onChange={(value) => setCommissionMatters(value)}
-                      // value={commissionMatters}
-                      // defaultValue={commissionMatters}
-                      options={[
-                        {
-                          value: "司法鉴定",
-                          label: "司法鉴定",
-                        },
-                        {
-                          value: "破译解密",
-                          label: "破译解密",
-                        }
-                      ]}
-                    />
-                    <DatePicker.RangePicker />
-                  </Flex>
+                  <DatePicker.RangePicker />
                   <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Typography.Title level={5}>{`已破解：${12}`}</Typography.Title>

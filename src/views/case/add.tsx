@@ -1,47 +1,86 @@
-import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex } from 'antd';
-import { useEffect, useMemo, useState } from 'react'
+import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex, App } from 'antd';
+import { useMemo, useState } from 'react'
 import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
 import DecryptionForm from '@/components/DecryptionForm';
 import { UploadOutlined } from '@ant-design/icons';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { importExcel } from '@/utils/convertFunctions';
-import { updateCase } from '@/request/api';
-export default function DataUpdatePage() {
+import { caseApi } from '@/request/api';
+export default function DataAddPage() {
   const location = useLocation();
-  const navigatorTo=useNavigate()
-  const [commissionMatters, setCommissionMatters] = useState<string | undefined>(location.state?.editItem.commission_matters)
+  const { notification } = App.useApp();
+  const [commissionMatters, setCommissionMatters] = useState<"司法鉴定" | "破译解密" | undefined>(location.state?.editItem.commission_matters)
   const [editRowData] = useState<any>({ is_cracking: false })
   const [form] = Form.useForm();
-  const handleReturn = () => {
+  const handleCancle = () => {
+    setCommissionMatters(undefined)
     form.resetFields()
-    navigatorTo(-1)
   }
-  useEffect(()=>{
-    if(location.state){
-      form.setFieldsValue(location.state.editItem)
-    }
-  })
   const whichForm = useMemo(() => {
     if (commissionMatters === "司法鉴定") return <JudicialIdentificationForm />
     else if (commissionMatters === "破译解密") return <DecryptionForm isCrakingProp={editRowData.is_cracking} />
     else return <></>
   }, [commissionMatters, editRowData])
-  const handleUpdateCase = async (caseForm: any) => {
-    updateCase(caseForm)
+  const handleAddCase = (caseForm: CaseDataType) => {
+    if (commissionMatters === "司法鉴定") {
+      caseApi.addJudicialCase(caseForm).then(
+        res => {
+          notification.success({
+            message: '成功',
+            description: '数据新增成功'
+          })
+          form.resetFields()
+        },
+        rej => {
+          notification.error({
+            message: '错误',
+            description: 'something wrong,request rejcted.'
+          })
+        }
+      ).catch(err => {
+        notification.error({
+          message: '错误',
+          description: err.message
+        })
+      }
+      )
+    } else {
+      caseApi.addDecryptionCase(caseForm).then(
+        res => {
+          notification.success({
+            message: '成功',
+            description: '数据新增成功'
+          })
+          form.resetFields()
+        },
+        rej => {
+          notification.error({
+            message: '错误',
+            description: 'something wrong,request rejcted.'
+          })
+        }
+      ).catch(err => {
+        notification.error({
+          message: '错误',
+          description: err.message
+        })
+      }
+      )
+    }
+
   };
-
-
   return (
     <Form
       layout="vertical"
       form={form}
       style={{ maxWidth: "90%" }}
       initialValues={{ remember: true }}
-      onFinish={handleUpdateCase}
+      onFinish={handleAddCase}
       autoComplete="off"
     >
       <Flex justify='space-between'>
         <Typography.Title level={5} style={{ margin: "0 0 10px 0" }}>基本信息</Typography.Title>
+
         <Button >
           <input type="file" onChange={importExcel} style={{ position: "absolute", width: "100%", height: "100%", opacity: 0, cursor: "pointer" }} />
           <UploadOutlined />
@@ -52,7 +91,7 @@ export default function DataUpdatePage() {
         <Col span={10}>
           <Form.Item
             label="委托事项"
-            name="commission_matters"
+            name="matterItem"
             rules={[{ required: true, message: "请选择委托事项" }]}
           >
             <Select
@@ -79,7 +118,7 @@ export default function DataUpdatePage() {
         <Col span={10}>
           <Form.Item
             label="委托单位"
-            name="commission_unit"
+            name="matterUnit"
             rules={[{ required: true, message: "请输入委托单位" }]}
           >
             <Input placeholder="请输入委托单位" />
@@ -91,7 +130,7 @@ export default function DataUpdatePage() {
         <Col span={10}>
           <Form.Item
             label="检案编号"
-            name="case_id"
+            name="matterNo"
             rules={[{ required: true, message: "请输入检案编号" }]}
           >
             <Input placeholder="请输入检案编号" />
@@ -101,21 +140,22 @@ export default function DataUpdatePage() {
         <Col span={10}>
           <Form.Item
             label="委托日期"
-            name="commission_date"
+            name="matterDate"
             rules={[{ required: true, message: "请输入委托日期" }]}
           >
             <DatePicker style={{ width: '100%' }} placeholder="请输入委托日期" />
           </Form.Item>
         </Col>
       </Row>
+
       {whichForm}
       <Form.Item>
         <Space style={{ display: "flex", justifyContent: "right" }}>
           <Button type="primary" htmlType="submit">
             提交
           </Button>
-          <Button onClick={handleReturn}>
-            返回
+          <Button onClick={handleCancle}>
+            重置
           </Button>
         </Space>
       </Form.Item>

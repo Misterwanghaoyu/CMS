@@ -46,22 +46,12 @@ const MainMenu: React.FC = () => {
     // console.log(keys); 
   }
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Menu: {
-            "colorText":"#fff",
-            "itemBg": "rgb(24,144,255)",
-            "subMenuItemBg":"rgb(24,144,255)"
-          },
-        },
-      }}
-    >
+ 
       <Menu
         // defaultSelectedKeys 表示当前样式所在的选中项的key
         // theme='dark'
         defaultSelectedKeys={[currentRoute.pathname]}
-        style={{ height: "100%" }}
+        // style={{ height: "100%" }}
         mode="inline"
         // 菜单项的数据
         items={navItems}
@@ -71,9 +61,6 @@ const MainMenu: React.FC = () => {
         // 当前菜单展开项的key数组
         openKeys={openKeys}
       />
-    </ConfigProvider>
-
-
   )
 }
 export default MainMenu;

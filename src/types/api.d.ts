@@ -13,6 +13,11 @@ interface LoginAPIRes {
     username:string
   }
 }
+interface UserListAPIRes {
+  code: number;
+  message: string;
+  data:UserDataType[]
+}
 
 // // 登录的响应类型约束
 // interface LoginAPIRes{

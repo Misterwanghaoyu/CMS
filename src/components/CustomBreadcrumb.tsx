@@ -22,7 +22,7 @@ const CustomBreadcrumb = () => {
   }
   
   return (
-    <Breadcrumb itemRender={itemRender} items={breadcrumbs}/>
+    <Breadcrumb itemRender={itemRender} items={breadcrumbs} />
     //   {breadcrumbs.map((item, index) => (
     //     <Breadcrumb.Item key={index}>
     //       {index === breadcrumbs.length - 1 ? (

@@ -15,7 +15,7 @@ function ToWhatPage(url:string,warningStr:string){
 // 手写封装路由守卫
 function BeforeRouterEnter(){
   const outlet = useRoutes(router);
-  const AdminPages=["/user/information"]
+  const AdminPages=["/user/information","/user/logs"]
   /*
     后台管理系统两种经典的跳转情况：
     1、如果访问的是登录页面， 并且有token， 跳转到首页
