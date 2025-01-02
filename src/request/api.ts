@@ -5,27 +5,53 @@ export const login = (params: LoginAPIReq): Promise<LoginAPIRes> => request.post
 
 
 const caseApi = {
-  getAllCase: (): Promise<any> => request.get("/api/matter/list"),
-  updateCase: (params: any): Promise<any> => request.post("/updateCase", params),
-  addJudicialCase: (params: any): Promise<any> => request.post("/api/judicial/save", params),
-  addDecryptionCase: (params: any): Promise<any> => request.post("/api/decryption/save", params),
-  searchCase: (params: any): Promise<any> => request.post("/searchCase", params),
-  deleteJudicialCase: (params: any): Promise<any> => request.post("/deleteCase", params),
-  deleteDecryptionCase: (params: any): Promise<any> => request.post("/deleteCase", params),
-  deleteCaseMultiple: (params: any): Promise<any> => request.post("/deleteCaseMultiple", params),
+  // 查询 
+  getAll: (): Promise<any> => request.get("/api/matter/list"),
+  getJudicialById: (query: string): Promise<any> => request.get("/api/matter/getJudicialInfo?"+query),
+  getDecryptionById: (query: string): Promise<any> => request.get("/api/matter/getDecryptionInfo?"+query),
+  // 新增
+  addJudicial: (params: any): Promise<any> => request.post("/api/matter/saveJudicial", params),
+  importJudicialExcel: (params: any): Promise<any> => request.post("/api/matter/importJudicial", params),
+  addDecryption: (params: any): Promise<any> => request.post("/api/matter/saveDecryption", params),
+  importDecryptionExcel: (params: any): Promise<any> => request.post("/api/matter/importDecryption", params),
+  // 组合查询
+  combinationQuery: (params: any): Promise<any> => request.post("/api/matter/listByCondition", params),
+  // 删除
+  delete: (params:  number[]): Promise<any> => request.post("/api/matter/delMatter", params),
+  // 批量删除
+  deleteMultiple: (params:  number[]): Promise<any> => request.post("/deleteCaseMultiple", params),
+  // 更新
+  updateJudicial: (params: any): Promise<any> => request.post("/api/matter/updateJudicial", params),
+  updateDecryption: (params: any): Promise<any> => request.post("/api/matter/updateDecryption", params),
 }
 const userApi = {
-  getAllUser: (): Promise<UserListAPIRes> => request.get("/api/sysUser/list"),
-  updateUser: (params: any): Promise<any> => request.post("/api/sysUser/update", params),
-  addUser: (params: any): Promise<any> => request.post("/api/sysUser/save", params),
-  searchUserById: (userId: string): Promise<any> => request.get(`/api/sysUser/info/${userId}`),
-  deleteUser: (params: any): Promise<any> => request.post("/api/sysUser/delete", params),
+  // 查询
+  getAll: (): Promise<UserListAPIRes> => request.get("/api/sysUser/list"),
+  // 更新
+  update: (params: any): Promise<any> => request.post("/api/sysUser/update", params),
+  // 新增
+  add: (params: any): Promise<any> => request.post("/api/sysUser/save", params),
+  // 删除
+  delete: (params: number[]): Promise<any> => request.post("/api/sysUser/delete", params),
+  // 查询
+  searchById: (userId: string): Promise<any> => request.get(`/api/sysUser/info?userId=${userId}`),
 }
 const logsApi = {
-  getLogs: (): Promise<any> => request.get("/api/sysLog/listPage"),
+  insertExportMatterLog: (params: number[]): Promise<any> => request.post("/api/matter/exportMatter", params),
+  getLogs: (): Promise<any> => request.get("/api/sysLog/list"),
+}
+const mainApi = {
+  // 查询
+  getTotalData: (query?: string): Promise<any> => request.get("/api/statistics/countMatter?"+query),
+  getSampleData: (query: string): Promise<any> => request.get("/api/statistics/countSample?"+query),
+  getCrackedData: (query: string): Promise<any> => request.get("/api/statistics/countCracked?"+query),
+  getDirectionDataByDirection: (query: string): Promise<any> => request.get("/api/statistics/countByDirection?"+query),
+  getCombinationDataById: (query: string): Promise<any> => request.get("/api/statistics/countByMatterNo?"+query),
 }
 export {
   caseApi,
   userApi,
-  logsApi
+  logsApi,
+  mainApi
 }
+

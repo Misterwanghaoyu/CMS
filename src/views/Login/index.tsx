@@ -41,19 +41,19 @@ const view = () => {
       message.warning("请完整输入信息！")
       return
     }
-    // login({
-    //   username: usernameVal,
-    //   password: passwordVal
-    // }).then(res => {
-    //   if (res.code === 0) {
-    //     message.success("登录成功")
-    //     localStorage.setItem("user", JSON.stringify(res.data))
-    //     localStorage.setItem("lege-react-management-token", res.data.token)
-    //     navigateTo("/main")
-    //   }else{
-    //     message.error(res.message)
-    //   }
-
+    login({
+      username: usernameVal,
+      password: passwordVal
+    }).then(res => {
+      if (res.code === 0) {
+        message.success("登录成功")
+        localStorage.setItem("userInfo", JSON.stringify(res.data))
+        localStorage.setItem("token", res.data.token)
+        navigateTo("/main")
+      } else {
+        message.error(res.message)
+      }
+    })
     // })  
     // // 发起登录请求
     // let loginAPIRes = await LoginAPI({
@@ -74,15 +74,15 @@ const view = () => {
     //   // 4、删除本地保存中的uuid
     //   localStorage.removeItem("uuid")
     // }
-    if (usernameVal==="Admin" && passwordVal==="Admin_114514") {
-      localStorage.setItem("user", JSON.stringify({code:"202410240001",id:1,name:"Admin",username:"Admin",permissions:"Admin"}))
-      localStorage.setItem("lege-react-management-token","202410240001")
-      navigateTo("/main")
-    }else if (usernameVal==="User" && passwordVal==="User_114514"){
-      localStorage.setItem("user", JSON.stringify({code:"202410240002",id:2,name:"User1",username:"User1",permissions:"User"}))
-      localStorage.setItem("lege-react-management-token","202410240002")
-      navigateTo("/main")
-    }
+    // if (usernameVal==="Admin" && passwordVal==="Admin_114514") {
+    //   localStorage.setItem("userInfo", JSON.stringify({code:"202410240001",id:1,name:"Admin",username:"Admin",permissions:"Admin"}))
+    //   localStorage.setItem("token","202410240001")
+    //   navigateTo("/main")
+    // }else if (usernameVal==="User" && passwordVal==="User_114514"){
+    //   localStorage.setItem("userInfo", JSON.stringify({code:"202410240002",id:2,name:"User1",username:"User1",permissions:"User"}))
+    //   localStorage.setItem("token","202410240002")
+    //   navigateTo("/main")
+    // }
   }
 
   // // 点击验证码图片盒子的事件函数

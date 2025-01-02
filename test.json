@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      //公共字段
+      "number": 1,
+      "matterNo": "001",//案件编号
+      "matterUnit": "1234567890",//案件单位
+      "direction": "1234567890",//敌情方向
+      "matterItem": "破译解密",//案件事项
+      "matterDate": "1234567890",//案件日期
+      "JudicialIdentificationForm": [
+        {
+          //司法鉴定字段
+        }
+      ],
+      "Decryption": [
+        
+        {
+          //解密字段
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "matterNo": "001",
+      "matterUnit": "1234567890",
+      "direction": "1234567890",
+      "matterItem": "司法鉴定",
+      "matterDate": "1234567890",
+      "JudicialIdentificationForm": [
+        {
+          "direction": "1234567890",
+          "subjectname": "1234567890",
+          "idtype": "1234567890",
+          "idnumber": "1234567890",
+          "idunit": "1234567890"
+          // ...
+        }
+      ],
+      "Decryption": [
+        {
+          // ...
+        }
+      ]
+    }
+  ]
+}

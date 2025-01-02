@@ -15,7 +15,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="敌情方向"
-            name="enemy_direction"
+            name="direction"
             rules={[{ required: true, message: "请输入敌情方向" }]}
           >
             <Input placeholder="请输入敌情方向" />
@@ -24,7 +24,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="对象姓名"
-            name="subject_name"
+            name="subjectName"
             rules={[{ required: true, message: "请输入对象姓名" }]}
           >
             <Input placeholder="请输入对象姓名" />
@@ -36,7 +36,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="证据类型"
-            name="id_type"
+            name="idType"
             rules={[{ required: true, message: "请输入证据类型" }]}
           >
             <Select
@@ -47,11 +47,11 @@ export default function JudicialIdentificationForm() {
               allowClear
               options={[
                 {
-                  value: "id_card",
+                  value: "1",
                   label: "身份证",
                 },
                 {
-                  value: "passport",
+                  value: "2",
                   label: "护照",
                 }
               ]}
@@ -61,7 +61,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="证件号码"
-            name="id_number"
+            name="idNumber"
             rules={[{ required: true, message: "请输入证件号码" }]}
           >
             <Input placeholder="请输入证件号码" />
@@ -72,19 +72,19 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="检材数量"
-            name="samples_number"
+            name="sampleCount"
             rules={[{ required: true, message: "请输入检材数量" }]}
           >
-            <Input type='number' placeholder="请输入检材数量" />
+            <Input type='number' min={0} placeholder="请输入检材数量" />
           </Form.Item>
         </Col>
         <Col span={10}>
           <Form.Item
             label="检材容量（单位：MB/GB）"
-            name="samples_capacity"
+            name="sampleVolume"
             rules={[{ required: true, message: "请输入检材容量" }]}
           >
-            <Input type='number' placeholder="请输入检材容量" />
+            <Input type='number' min={0}  placeholder="请输入检材容量" />
           </Form.Item>
         </Col>
       </Row>
@@ -92,7 +92,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="案情简介"
-            name="case_brief"
+            name="description"
           >
             <Input.TextArea
               placeholder="请输入案情简介"
@@ -106,7 +106,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="工作内容"
-            name="work_content"
+            name="workContent"
           >
             <Input.TextArea
               placeholder="请输入工作内容"
@@ -122,7 +122,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="工作成果"
-            name="work_results"
+            name="workResult"
           >
             <Input.TextArea
               placeholder="请输入工作成果"
@@ -136,7 +136,7 @@ export default function JudicialIdentificationForm() {
         <Col span={10}>
           <Form.Item
             label="备注"
-            name="tips"
+            name="remarks"
           >
             <Input.TextArea
               placeholder="请输入备注"

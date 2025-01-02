@@ -1,4 +1,4 @@
-import { deleteJudicialCase, deleteDecryptionCase } from '@/request/api';
+import { logsApi } from '@/request/api';
 import { exportAsExcel } from '@/utils/convertFunctions'
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { App, Button, Flex, Form, Popconfirm, Space, Table, TableColumnsType, Tag, Typography } from 'antd'
@@ -8,12 +8,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 export default function Logs() {
+  // 初始化 hooks
   const [form] = Form.useForm();
-  const navigateTo = useNavigate()
+  const navigateTo = useNavigate();
   const { message, notification } = App.useApp();
 
-  const [isAllSelected, setIsAllSelected] = useState(false)
-  const [dataSource, setDataSource] = useState<CaseDataType[]>([])
+  // 状态管理
+  const [isAllSelected, setIsAllSelected] = useState(false);
+  const [dataSource, setDataSource] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [params, setParams] = useState({
     current: 1,
@@ -21,102 +23,18 @@ export default function Logs() {
     name: "",
     code: "",
   });
-  const total = useMemo(() => dataSource.length, [dataSource])
+
+  // 计算属性
+  const total = useMemo(() => dataSource.length, [dataSource]);
   const hasSelected = selectedRowKeys.length > 0;
 
-  // 展示总条数
-  const showTotal = (total: number) => {
-    return `共 ${total} 条`;
-  };
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-  const rowSelection: TableRowSelection<CaseDataType> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-  const handleDetail = (item: CaseDataType) => {
-    // navigateTo('/data/update', {
-    //   state: {
-    //     editItem: item
-    //   }
-    // })
-  }
-  const handleDelete = (item: CaseDataType) => {
-    // deleteJudicialCase([item.judicial_id]).then(
-    //   res => {
-    //     notification.success({
-    //       message: '成功',
-    //       description: '数据删除成功'
-    //     })
-    //     form.resetFields()
-    //   },
-    //   rej => {
-    //     notification.error({
-    //       message: '错误',
-    //       description: 'something wrong,request rejcted.'
-    //     })
-    //   }
-    // ).catch(err => {
-    //   notification.error({
-    //     message: '错误',
-    //     description: err.message
-    //   })
-    // }
-    // )
-  }
-  const columns: TableColumnsType<CaseDataType> = [
-    { key: "create_date", title: '创建时间', dataIndex: 'create_date' },
-
-    { key: 'user_id', title: '操作用户ID', dataIndex: 'user_id' },
-    { key: "operation_title", title: '操作标题', dataIndex: 'operation_title' },
-    { key: "operation_type", title: '操作类型', dataIndex: 'operation_type' },
-    { key: "execute_time", title: '执行时长', dataIndex: 'execute_time' },
-    { key: "ip_address", title: 'IP地址', dataIndex: 'ip_address' },
-    { key: "operation_state", title: '操作状态', dataIndex: 'operation_state' },
-    {
-      key: "operation",
-      title: '操作',
-      dataIndex: 'operation',
-      render: (_, record) => (
-        <Space>
-          <Button type='link' onClick={() => handleDetail(record)}><EditOutlined />详情</Button>
-          <Popconfirm
-            title="删除案件"
-            description="确认删除此案件?"
-            onConfirm={() => handleDelete(record)}
-            okText="是"
-            cancelText="否"
-          >
-            <Button type='link' danger><DeleteOutlined />删除</Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  useEffect(() => {
-    const fakeData = Array.from<any>({ length: 46 }).map<any>((_, i) => ({
-      key: i,
-      create_date: moment(new Date()).format("YYYY-MM-DD"),
-      user_id: `${i}`,
-      operation_title: i % 2 === 1 ? `司法鉴定` : `破译解密`,
-      operation_type: `新增`,
-      execute_time: `敌情方向${i}`,
-      ip_address: "why",
-      operation_state:"success"
-    }))
-    setDataSource(fakeData)
-  }, [])
-
+  // 事件处理方法
   const handleSelectAll = () => {
-    let allSelectedRowKeys: number[]
-    if (isAllSelected) allSelectedRowKeys = []
-    else allSelectedRowKeys = dataSource.map((_, dataIndex) => dataIndex)
-    setIsAllSelected(!isAllSelected)
-    setSelectedRowKeys(allSelectedRowKeys)
-  }
+    const allSelectedRowKeys = isAllSelected ? [] : dataSource.map((_, index) => index);
+    setIsAllSelected(!isAllSelected);
+    setSelectedRowKeys(allSelectedRowKeys);
+  };
+
   const handlePaginationChange = (newPageNum: number, newPageSize: number) => {
     setParams({
       ...params,
@@ -126,41 +44,91 @@ export default function Logs() {
       code: "",
     });
   };
- const handleMultipleDelete = () => {
-    if (selectedRowKeys.length === 0) return message.error("请至少选择一条数据")
-    const items = dataSource.filter((item) => selectedRowKeys.includes(item.key))
-    // deleteCaseMultiple(items)
-  }
+
+  const handleMultipleDelete = () => {
+    if (selectedRowKeys.length === 0) {
+      return message.error("请至少选择一条数据");
+    }
+    const items = dataSource.filter((item) => selectedRowKeys.includes(item.key));
+  };
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const showTotal = (total: number) => `共 ${total} 条`;
+
+  // 表格配置
+  const rowSelection: TableRowSelection<any> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
+  const columns: TableColumnsType<LogItemType> = [
+    { key: "logId", title: '日志ID', dataIndex: 'logId' },
+    { key: "username", title: '用户名', dataIndex: 'username' },
+    { key: "operation", title: '操作内容', dataIndex: 'operation' },
+    {
+      key: "operType",
+      title: '操作类型',
+      dataIndex: 'operType',
+      render: (_, record) => {
+        const typeMap = {
+          1: { color: 'blue', text: '新增' },
+          2: { color: 'green', text: '修改' },
+          3: { color: 'red', text: '删除' },
+          4: { color: 'orange', text: '查询' }
+        };
+        // @ts-ignore
+        const { color, text } = typeMap[record.operType] || { color: 'purple', text: '其他' };
+        return <Tag color={color}>{text}</Tag>;
+      },
+    },
+    { key: "operFaultMsg", title: '错误信息', dataIndex: 'operFaultMsg' },
+    { key: "operIp", title: 'IP地址', dataIndex: 'operIp' },
+    { key: "createDate", title: '创建时间', dataIndex: 'createDate' },
+  ];
+
+  // 副作用
+  useEffect(() => {
+    logsApi.getLogs().then(res => {
+      const withKeyData = res.data.map((item: any, index: number) => ({
+        ...item,
+        key: index
+      }));
+      setDataSource(withKeyData);
+    });
+  }, []);
+
   return (
-    <div>
-      <Flex gap="middle" vertical>
-        <Typography.Title level={5}>日志详情</Typography.Title>
-        <Table<CaseDataType>
-          // onRow={(record) => ({
-          //   onClick: () => setSelectedRowItem(record)
-          // })}
-          pagination={{
-            current: params.current,
-            pageSize: params.size,
-            total: total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: showTotal,
-            onChange: handlePaginationChange,
-          }} rowSelection={rowSelection} columns={columns} dataSource={dataSource} />
-        <Space>
-          <Button type="primary" onClick={handleSelectAll}>
-            {isAllSelected ? "取消全选" : "全选"}
-          </Button>
-          <Button type="primary" onClick={handleMultipleDelete}>
-            批量删除
-          </Button>
-          <Button type="primary" onClick={() => exportAsExcel(dataSource, selectedRowKeys)}>
-            批量导出
-          </Button>
-          {hasSelected && <Tag icon={<CheckCircleOutlined />} color="success" bordered={false}>{`已选中 ${selectedRowKeys.length} 条`}</Tag>}
-        </Space>
-      </Flex>
-    </div>
-  )
+    <Flex gap="middle" vertical justify="space-between" style={{ height: "100%" }}>
+      <Table<LogItemType>
+        pagination={{
+          current: params.current,
+          pageSize: params.size,
+          total: total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: showTotal,
+          onChange: handlePaginationChange,
+        }}
+        rowSelection={rowSelection}
+        columns={columns}
+        dataSource={dataSource}
+      />
+      {/* <Space>
+        <Button type="primary" onClick={handleSelectAll}>
+          {isAllSelected ? "取消全选" : "全选"}
+        </Button>
+        <Button type="primary" onClick={()=>{}}>
+          批量导出
+        </Button>
+        {hasSelected && (
+          <Tag icon={<CheckCircleOutlined />} color="success" bordered={false}>
+            {`已选中 ${selectedRowKeys.length} 条`}
+          </Tag>
+        )}
+      </Space> */}
+    </Flex>
+  );
 }

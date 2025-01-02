@@ -38,6 +38,7 @@ const withLoadingComponent = (comp: JSX.Element) => (
 )
 export const routeData: RouteDataItemType[] = [
   {
+    label: '首页',
     key: 'main',
     path: 'main',
     component: withLoadingComponent(<Main />),
@@ -47,6 +48,7 @@ export const routeData: RouteDataItemType[] = [
     },
   },
   {
+    label: '数据信息',
     key: 'data',
     path: 'data',
     component: withLoadingComponent(<Data />),
@@ -56,6 +58,7 @@ export const routeData: RouteDataItemType[] = [
     },
     children: [
       {
+        label: '数据录入',
         key: 'add',
         path: 'add',
         component: withLoadingComponent(<DataAdd />),
@@ -65,6 +68,7 @@ export const routeData: RouteDataItemType[] = [
         },
       },
       {
+        label: '数据查询',
         key: 'search',
         path: 'search',
         component: withLoadingComponent(<DataSearch />),
@@ -74,6 +78,7 @@ export const routeData: RouteDataItemType[] = [
         },
       },
       {
+        label: '数据修改',
         key: 'update',
         path: 'update',
         component: withLoadingComponent(<DataUpdate />),
@@ -86,6 +91,7 @@ export const routeData: RouteDataItemType[] = [
     ],
   },
   {
+    label: '用户管理',
     key: 'user',
     path: 'user',
     component: withLoadingComponent(<User />),
@@ -95,6 +101,7 @@ export const routeData: RouteDataItemType[] = [
     },
     children: [
       {
+        label: '用户信息',
         key: 'information',
         path: 'information',
         component: withLoadingComponent(<UserInformation />),
@@ -104,6 +111,7 @@ export const routeData: RouteDataItemType[] = [
         },
       },
       {
+        label: '日志详情',
         key: 'logs',
         path: 'logs',
         component: withLoadingComponent(<UserLogs />),
@@ -115,6 +123,7 @@ export const routeData: RouteDataItemType[] = [
     ],
   },
   {
+    label: '数据备份与修复',
     key: 'backup',
     path: 'backup',
     component: withLoadingComponent(<Backup />),

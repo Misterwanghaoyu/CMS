@@ -23,8 +23,8 @@ function BeforeRouterEnter(){
     3、其余的都可以正常放行
   */
     const location = useLocation()
-    let token = localStorage.getItem("lege-react-management-token");
-    let user = JSON.parse(localStorage.getItem("user")!)
+    let token = localStorage.getItem("token");
+    let user = JSON.parse(localStorage.getItem("userInfo")!)
     
     //1、如果访问的是登录页面， 并且有token， 跳转到首页
     if(location.pathname==="/login" && token){

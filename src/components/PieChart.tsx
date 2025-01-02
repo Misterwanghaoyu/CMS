@@ -3,9 +3,11 @@ import * as echarts from 'echarts';
 
 interface PieChartProps {
   style?: React.CSSProperties;
+  data: {value:number,name:string}[]
+  name:string
 }
 
-const PieChart: React.FC<PieChartProps> = ({ style }) => {
+const PieChart: React.FC<PieChartProps> = ({ style,name,data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!chartRef.current) return;
@@ -20,7 +22,7 @@ const PieChart: React.FC<PieChartProps> = ({ style }) => {
       },
       series: [
         {
-          name: '破解情况',
+          name,
           type: 'pie',
           radius: ['40%', '70%'],
           avoidLabelOverlap: false,
@@ -43,10 +45,7 @@ const PieChart: React.FC<PieChartProps> = ({ style }) => {
           labelLine: {
             show: false
           },
-          data: [
-            { value: 81, name: '破解为"是"', itemStyle: { color: '#1890ff' } },
-            { value: 19, name: '破解为"否"', itemStyle: { color: '#ff4d4f' } }
-          ]
+          data
         }
       ]
     };
@@ -62,7 +61,7 @@ const PieChart: React.FC<PieChartProps> = ({ style }) => {
       chart.dispose();
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [data]);
 
   return <div ref={chartRef} style={{ height: '300px', ...style }} />;
 };

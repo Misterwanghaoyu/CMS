@@ -1,55 +1,61 @@
-interface RouteDataItemType{
-  key:string,
-  path:string,
-  component:JSX.Element,
+// 基础菜单项接口
+interface BaseMenuItem {
+  label: string
+  key: string
+  icon?: ReactElement | JSX.Element | null
+  children?: any[]
+}
+
+// 导航菜单项继承基础菜单项
+interface NavMenuItemType extends BaseMenuItem {
+  theme?: string
+}
+
+// 菜单项类型继承基础菜单项
+interface MenuItemType extends BaseMenuItem {
+  disabled?: boolean
+}
+
+// 路由数据项继承基础菜单项
+interface RouteDataItemType extends BaseMenuItem {
+  path: string
+  component: JSX.Element
   meta: {
-    title: string,
-    icon?: JSX.Element,
-    disabled?:boolean
-  },
-  children?:RouteDataItemType[]
+    title: string
+    icon?: JSX.Element
+    disabled?: boolean
+  }
+  children?: RouteDataItemType[]
 }
-interface NavMenuItemType{
-  label:string,
-  key:string,
-  theme?: string,
-  icon?: ReactElement,
-  children?:NavMenuItemType[]
+
+// 路由项类型
+type RouteItemType = {
+  path: string
+  element: JSX.Element | null
+  children?: RouteItemType[]
 }
-interface RouteItemType{
-  path:string,
-  element: ReactElement,
-  children?:RouteItemType[]
-}
-interface CaseDataType {
-  case_id: string
-  judicial_id?: string
-  decryption_id?:string
-  commission_unit: string
-  enemy_direction: string
-  commission_matters: string
-  submit_person: string
-  create_date: string
-  // operation: ReactElement
-}
+
+// 用户数据类型
 interface UserDataType {
-  userId: number;
-  username: string;
-  mobile: string;
-  realName: string; 
+  userId: number
+  username: string
+  mobile: string
+  realName: string
   deptId: number
-  avatar: string 
-  sex: number;
-  email: string 
-  remark: string 
+  avatar: string
+  sex: number
+  email: string
+  remark: string
   roleId: number
 }
 
-interface CaseSearchType {
-  case_id: string
-  commission_unit: string
-  enemy_direction: string
-  commission_matters: string
-  submit_person: string
-  commission_date: string
+// 日志项类型
+interface LogItemType {
+  logId: number
+  username: string
+  operation: string
+  operType: number
+  operFaultMsg: string
+  operIp: string
+  createDate: string
 }
