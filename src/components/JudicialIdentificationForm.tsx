@@ -1,4 +1,5 @@
 // 司法鉴定
+import { IdType } from "@/utils/enum";
 import {
   Col,
   Form,
@@ -47,11 +48,11 @@ export default function JudicialIdentificationForm() {
               allowClear
               options={[
                 {
-                  value: "1",
+                  value: IdType.idCard,
                   label: "身份证",
                 },
                 {
-                  value: "2",
+                  value: IdType.passport,
                   label: "护照",
                 }
               ]}

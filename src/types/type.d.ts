@@ -50,7 +50,7 @@ interface UserDataType {
 }
 
 // 日志项类型
-interface LogItemType {
+interface LogDataType {
   logId: number
   username: string
   operation: string
@@ -59,3 +59,5 @@ interface LogItemType {
   operIp: string
   createDate: string
 }
+
+

@@ -38,7 +38,6 @@ export default function Information() {
     {
       title: "编号",
       dataIndex: "userId",
-      width: 100,
     },
     {
       title: "账号",

@@ -10,14 +10,15 @@ import {
   Select,
   Typography,
 } from "antd";
+import { CrackedType } from '@/utils/enum';
 export default function DecryptionForm({ form }: { form? : FormInstance }) {
-  const [isCraking, setIsCraking] = useState("1")
+  const [cracked, setCracked] = useState<CrackedType>(CrackedType.yes)
 
   useEffect(() => {
-    if (isCraking === "2") {
+    if (cracked === CrackedType.yes) {
       form?.setFieldValue("plaintextPassword", "");
     }
-  }, [isCraking])
+  }, [cracked])
 
   return (
     <>
@@ -67,13 +68,13 @@ export default function DecryptionForm({ form }: { form? : FormInstance }) {
         <Col span={10}>
           <Form.Item
             label="是否破解"
-            initialValue={isCraking}
+            initialValue={cracked}
             name="cracked"
             rules={[{ required: true, message: "是否破解？" }]}
           >
-            <Radio.Group onChange={(e) => setIsCraking(e.target.value)} value={isCraking}>
-              <Radio value="1">是</Radio>
-              <Radio value="2">否</Radio>
+            <Radio.Group onChange={(e) => setCracked(e.target.value)} value={cracked}>
+              <Radio value={CrackedType.yes}>是</Radio>
+              <Radio value={CrackedType.no}>否</Radio>
             </Radio.Group>
           </Form.Item>
         </Col>
@@ -81,9 +82,9 @@ export default function DecryptionForm({ form }: { form? : FormInstance }) {
           <Form.Item
             label="明文密码"
             initialValue={""}
-            hidden={isCraking === "2" ? true : false}
+            hidden={cracked !== CrackedType.yes}
             name="plaintextPassword"
-            rules={[{ required: isCraking === "1" ? true : false, message: "请输入明文密码" }]}
+            rules={[{ required: cracked === CrackedType.yes, message: "请输入明文密码" }]}
           >
             <Input placeholder="请输入明文密码" />
           </Form.Item>

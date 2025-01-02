@@ -6,6 +6,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import { parseExcel } from '@/utils/convertFunctions';
 import { caseApi } from '@/request/api';
+import { MatterItemType } from '@/utils/enum';
 
 export default function DataAddPage() {
   const [form] = Form.useForm();
@@ -13,9 +14,7 @@ export default function DataAddPage() {
   const { notification } = App.useApp();
   const { name: realName } = JSON.parse(localStorage.getItem("userInfo")!)
   const [editRowData] = useState<any>({ cracked: false })
-  const [commissionMatters, setCommissionMatters] = useState<"1" | "2" | undefined>(
-    location.state?.editItem.commission_matters
-  )
+  const [commissionMatters, setCommissionMatters] = useState<MatterItemType>()
 
   const handleCancle = () => {
     setCommissionMatters(undefined)
@@ -64,15 +63,15 @@ export default function DataAddPage() {
   }
 
   const whichForm = useMemo(() => {
-    if (commissionMatters === "1") return <JudicialIdentificationForm />
-    if (commissionMatters === "2") return <DecryptionForm form={form} />
+    if (commissionMatters === MatterItemType.judicial) return <JudicialIdentificationForm />
+    if (commissionMatters === MatterItemType.decryption) return <DecryptionForm form={form} />
     return <></>
-  }, [commissionMatters, editRowData])
+  }, [commissionMatters])
 
   const handleAddCase = async (caseForm: any) => {
     try {
       
-      const api = commissionMatters === "1" ? caseApi.addJudicial : caseApi.addDecryption
+      const api = commissionMatters === MatterItemType.judicial ? caseApi.addJudicial : caseApi.addDecryption
       const res = await api(caseForm)
 
       if (res.code === 0) {
@@ -145,8 +144,8 @@ export default function DataAddPage() {
               onChange={setCommissionMatters}
               value={commissionMatters}
               options={[
-                { value: "1", label: "司法鉴定" },
-                { value: "2", label: "破译解密" }
+                { value: MatterItemType.judicial, label: "司法鉴定" },
+                { value: MatterItemType.decryption, label: "破译解密" }
               ]}
             />
           </Form.Item>

@@ -1,4 +1,5 @@
 import { userApi } from '@/request/api'
+import { RoleType, SexType } from '@/utils/enum'
 import { Modal, Input, Select, Space, Button, Form, message, FormInstance, App } from 'antd'
 
 interface PropsType {
@@ -9,15 +10,15 @@ interface PropsType {
   setIsModalOpen: Function,
   reFetch: Function
 }
-const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, isUpdate, form, setIsModalOpen, reFetch }) => {
+const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, isUpdate, form, setIsModalOpen, reFetch }) => {
   const { notification } = App.useApp();
 
-  const handleAddUpdateUser = async (formData:UserDataType) => {
+  const handleAddUpdateUser = async (formData: UserDataType) => {
     if (isUpdate && selectedRowItem) {
-      formData.userId=selectedRowItem.userId
-      userApi.updateUser(formData).then(
+      formData.userId = selectedRowItem.userId
+      userApi.update(formData).then(
         res => {
-          if(res.code===0){
+          if (res.code === 0) {
             notification.success({
               message: "成功",
               description: "修改成功"
@@ -25,7 +26,7 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
             form.resetFields()
             setIsModalOpen(false)
             reFetch()
-          }else{
+          } else {
             notification.error({
               message: "错误",
               description: res.message
@@ -46,7 +47,7 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
       }
       )
     } else {
-      userApi.addUser(formData).then(
+      userApi.add(formData).then(
         res => {
           if (res.code === 0) {
             notification.success({
@@ -89,7 +90,7 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
         form={form}
         style={{ maxWidth: 400 }}
         initialValues={{ remember: true }}
-        onFinish={(formData)=>handleAddUpdateUser(formData)}
+        onFinish={(formData) => handleAddUpdateUser(formData)}
         autoComplete="off"
       >
         <Form.Item
@@ -103,7 +104,7 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
         <Form.Item
           label="密码"
           name="password"
-          rules={[{ required: true, message: "请输入密码" },{ len: 6, message: "请输入至少6位密码" }]}
+          rules={[{ required: true, message: "请输入密码" }, { len: 6, message: "请输入至少6位密码" }]}
         >
           <Input.Password placeholder="请输入密码" />
         </Form.Item>
@@ -120,11 +121,11 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
             allowClear
             options={[
               {
-                value: "1",
+                value: RoleType.admin,
                 label: "管理员",
               },
               {
-                value: "2",
+                value: RoleType.user,
                 label: "普通用户",
               }
             ]}
@@ -162,11 +163,11 @@ const AddEditUserModal: React.FC<PropsType> = ({selectedRowItem, isModalOpen, is
             allowClear
             options={[
               {
-                value: "1",
+                value: SexType.male,
                 label: "男",
               },
               {
-                value: "2",
+                value: SexType.female,
                 label: "女",
               }
             ]}

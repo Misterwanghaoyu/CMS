@@ -18,7 +18,7 @@ import NoPermissionPage from "@/views/403";
 const Main = lazy(() => import("../views/main"))
 const Data = lazy(() => import("../views/case"))
 const User = lazy(() => import("../views/user"))
-const Backup = lazy(() => import("../views/backup"))
+// const Backup = lazy(() => import("../views/backup"))
 
 const DataAdd = lazy(() => import("../views/case/add"))
 const DataSearch = lazy(() => import("../views/case/search"))
@@ -122,16 +122,16 @@ export const routeData: RouteDataItemType[] = [
       }
     ],
   },
-  {
-    label: '数据备份与修复',
-    key: 'backup',
-    path: 'backup',
-    component: withLoadingComponent(<Backup />),
-    meta: {
-      title: '数据备份与修复',
-      icon: <CloudUploadOutlined />
-    },
-  }
+  // {
+  //   label: '数据备份与修复',
+  //   key: 'backup',
+  //   path: 'backup',
+  //   component: withLoadingComponent(<Backup />),
+  //   meta: {
+  //     title: '数据备份与修复',
+  //     icon: <CloudUploadOutlined />
+  //   },
+  // }
 ]
 const routes: RouteItemType[] = [
 

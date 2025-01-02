@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exportAsExcel } from '@/utils/convertFunctions';
 import { caseApi } from '@/request/api';
+import { MatterItemType } from '@/utils/enum';
 
 type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'];
 
@@ -30,8 +31,8 @@ export default function Search() {
     const items = dataSource.filter((item) => selectedRowKeys.includes(item.key));
     const matterIds = items.map((item) => item.matterId);
 
-    const judicialItems = items.filter((item) => item.matterItem === 1);
-    const decryptionItems = items.filter((item) => item.matterItem === 2);
+    const judicialItems = items.filter((item) => item.matterItem === MatterItemType.judicial);
+    const decryptionItems = items.filter((item) => item.matterItem === MatterItemType.decryption);
 
     const judicialItemsId = judicialItems.map((item) => item.matterId);
     const decryptionItemsId = decryptionItems.map((item) => item.matterId);
@@ -132,12 +133,7 @@ export default function Search() {
     { key: 'matterId', title: '序号', dataIndex: 'matterId' },
     { key: "matterNo", title: '检案编号', dataIndex: 'matterNo' },
     { key: "matterUnit", title: '委托单位', dataIndex: 'matterUnit' },
-    {
-      key: "matterItem",
-      title: '委托事项',
-      dataIndex: 'matterItem',
-      render: (_, record) => record.matterItem === 1 ? "司法鉴定" : "破译解密"
-    },
+    { key: "matterItem", title: '委托事项', dataIndex: 'matterItem' },
     { key: "submitUser", title: '提交人', dataIndex: 'submitUser' },
     { key: "matterDate", title: '创建时间', dataIndex: 'matterDate' },
     {
@@ -213,11 +209,6 @@ export default function Search() {
   };
 
   const handleSearch = async (searchForm: any) => {
-    if (searchForm.commission_date) {
-      searchForm.beginDate = searchForm.commission_date[0].format("YYYY-MM-DD HH:mm:ss");
-      searchForm.endDate = searchForm.commission_date[1].format("YYYY-MM-DD HH:mm:ss");
-      delete searchForm.commission_date;
-    }
 
     try {
       const res = await caseApi.combinationQuery(searchForm);
@@ -262,12 +253,12 @@ export default function Search() {
                 placeholder="委托事项"
                 allowClear
                 options={[
-                  { value: "1", label: "司法鉴定" },
-                  { value: "2", label: "破译解密" }
+                  { value: MatterItemType.judicial, label: "司法鉴定" },
+                  { value: MatterItemType.decryption, label: "破译解密" }
                 ]}
               />
             </Form.Item>
-            <Form.Item name="commission_date">
+            <Form.Item name="matterDateRange">
               <DatePicker.RangePicker showTime />
             </Form.Item>
             <Form.Item>

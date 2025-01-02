@@ -7,11 +7,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { caseApi } from '@/request/api';
 import { parseExcel } from '@/utils/convertFunctions';
 import dayjs from 'dayjs';
+import { MatterItemType } from '@/utils/enum';
 export default function DataUpdatePage() {
   const location = useLocation();
   const { notification } = App.useApp();
   const navigatorTo = useNavigate()
-  const [commissionMatters, setCommissionMatters] = useState<1 | 2 | undefined>(location.state?.editItem.commission_matters)
+  const [commissionMatters, setCommissionMatters] = useState<MatterItemType>(location.state?.editItem.matterItem)
   const [editRowData] = useState<any>({ cracked: false })
   const [form] = Form.useForm();
   const handleReturn = () => {
@@ -21,13 +22,13 @@ export default function DataUpdatePage() {
   useEffect(() => {
     if (location.state) {
       const { editItem } = location.state
-      if (editItem.matterItem === 1) {
-        setCommissionMatters(1)
+      if (editItem.matterItem === MatterItemType.judicial) {
+        // setCommissionMatters(1)
         caseApi.getJudicialById(`matterId=${editItem.matterId}&judicialId=1`).then(res => {
           form.setFieldsValue(res.data)
         })
-      } else if (editItem.matterItem === 2) {
-        setCommissionMatters(2)
+      } else if (editItem.matterItem === MatterItemType.decryption) {
+        // setCommissionMatters(2)
         caseApi.getDecryptionById(`matterId=${editItem.matterId}&decryptionId=1`).then(res => {
           form.setFieldsValue(res.data)
         })
@@ -35,52 +36,52 @@ export default function DataUpdatePage() {
     }
   }, [])
   const whichForm = useMemo(() => {
-    if (commissionMatters === 1) return <JudicialIdentificationForm />
-    else if (commissionMatters === 2) return <DecryptionForm />
+    if (commissionMatters === MatterItemType.judicial) return <JudicialIdentificationForm />
+    else if (commissionMatters === MatterItemType.decryption) return <DecryptionForm form={form} />
     else return <></>
-  }, [commissionMatters, editRowData])
+  }, [commissionMatters])
   const handleUpdateCase = async (caseForm: any) => {
     caseForm.matterId = location.state?.editItem.matterId
     caseForm.matterDate = dayjs(caseForm.matterDate).format("YYYY-MM-DD HH:mm:ss")
-    if(commissionMatters === 1){
-      caseApi.updateJudicial(caseForm).then(res=>{
-        if(res.code === 0){
+    if (commissionMatters === MatterItemType.judicial) {
+      caseApi.updateJudicial(caseForm).then(res => {
+        if (res.code === 0) {
           notification.success({
             message: '成功',
             description: '数据更新成功'
           })
           navigatorTo(-1)
-        }else{
+        } else {
           notification.error({
             message: '失败',
             description: res.message
           })
         }
-      }).catch(err=>{
+      }).catch(err => {
         notification.error({
           message: '失败',
           description: err.message
         })
       })
-    }else if(commissionMatters === 2){
-      caseApi.updateDecryption(caseForm).then(res=>{
-        if(res.code === 0){
+    } else if (commissionMatters === MatterItemType.decryption) {
+      caseApi.updateDecryption(caseForm).then(res => {
+        if (res.code === 0) {
           notification.success({
             message: '成功',
             description: '数据更新成功'
           })
           navigatorTo(-1)
-        }else{
+        } else {
           notification.error({
             message: '失败',
             description: res.message
           })
         }
-      }).catch(err=>{
+      }).catch(err => {
         notification.error({
           message: '失败',
           description: err.message
-        })  
+        })
       })
     }
   };

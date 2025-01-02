@@ -1,5 +1,6 @@
 import { logsApi } from '@/request/api';
 import { exportAsExcel } from '@/utils/convertFunctions'
+import { OperType } from '@/utils/enum';
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { App, Button, Flex, Form, Popconfirm, Space, Table, TableColumnsType, Tag, Typography } from 'antd'
 import { TableRowSelection } from 'antd/es/table/interface';
@@ -64,7 +65,7 @@ export default function Logs() {
     onChange: onSelectChange,
   };
 
-  const columns: TableColumnsType<LogItemType> = [
+  const columns: TableColumnsType<LogDataType> = [
     { key: "logId", title: '日志ID', dataIndex: 'logId' },
     { key: "username", title: '用户名', dataIndex: 'username' },
     { key: "operation", title: '操作内容', dataIndex: 'operation' },
@@ -73,15 +74,13 @@ export default function Logs() {
       title: '操作类型',
       dataIndex: 'operType',
       render: (_, record) => {
-        const typeMap = {
-          1: { color: 'blue', text: '新增' },
-          2: { color: 'green', text: '修改' },
-          3: { color: 'red', text: '删除' },
-          4: { color: 'orange', text: '查询' }
-        };
-        // @ts-ignore
-        const { color, text } = typeMap[record.operType] || { color: 'purple', text: '其他' };
-        return <Tag color={color}>{text}</Tag>;
+        switch(record.operType){
+          case OperType.add: return <Tag color="blue">新增</Tag>;
+          case OperType.update: return <Tag color="green">修改</Tag>;
+          case OperType.delete: return <Tag color="red">删除</Tag>;
+          case OperType.query: return <Tag color="orange">查询</Tag>;
+          default: return <Tag color="purple">其他</Tag>;
+        }
       },
     },
     { key: "operFaultMsg", title: '错误信息', dataIndex: 'operFaultMsg' },
@@ -102,7 +101,7 @@ export default function Logs() {
 
   return (
     <Flex gap="middle" vertical justify="space-between" style={{ height: "100%" }}>
-      <Table<LogItemType>
+      <Table<LogDataType>
         pagination={{
           current: params.current,
           pageSize: params.size,
