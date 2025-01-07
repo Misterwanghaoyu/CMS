@@ -43,10 +43,10 @@ export default function Search() {
         Promise.all(decryptionItemsId.map(id => caseApi.getDecryptionById(`matterId=${id}&decryptionId=1`)))
       ]);
 
-      const exportData1 = judicialResults.map(res => res.data);
-      const exportData2 = decryptionResults.map(res => res.data);
+      // const exportData1 = judicialResults.map(res => res.data);
+      // const exportData2 = decryptionResults.map(res => res.data);
 
-      exportAsExcel(exportData1, exportData2, matterIds);
+      exportAsExcel(judicialResults, decryptionResults, matterIds);
     } catch (err: any) {
       notification.error({
         message: '导出失败',
@@ -68,27 +68,10 @@ export default function Search() {
   };
 
   // 刷新数据
-  const refreshData = async () => {
-    try {
-      const res = await caseApi.getAll();
-      if (res.code === 0) {
-        const withKeyData = res.data.map((item: any, index: number) => ({
-          ...item,
-          key: index
-        }));
-        setDataSource(withKeyData);
-      } else {
-        notification.error({
-          message: '获取数据失败',
-          description: res.message
-        });
-      }
-    } catch (err: any) {
-      notification.error({
-        message: '获取数据失败',
-        description: err.message
-      });
-    }
+  const refreshData = () => {
+    caseApi.getAll().then(data => {
+      setDataSource(data)
+    })
   };
 
   useEffect(() => {
@@ -106,36 +89,23 @@ export default function Search() {
 
   // 删除操作
   const handleDelete = async (matterId: number) => {
-    try {
-      const res = await caseApi.delete([matterId]);
-      if (res.code === 0) {
-        notification.success({
-          message: '删除成功',
-          description: '数据删除成功'
-        });
-        form.resetFields();
-        refreshData();
-      } else {
-        notification.error({
-          message: '删除失败',
-          description: res.message
-        });
-      }
-    } catch (err: any) {
-      notification.error({
-        message: '删除失败',
-        description: err.message
+    caseApi.delete([matterId]).then(() => {
+      notification.success({
+        message: '删除成功',
+        description: '数据删除成功'
       });
-    }
+      form.resetFields();
+      refreshData();
+    })
   };
 
   const columns: TableColumnsType<any> = [
-    { key: 'matterId', title: '序号', dataIndex: 'matterId' },
+    // { key: 'matterId', title: '序号', dataIndex: 'matterId' },
     { key: "matterNo", title: '检案编号', dataIndex: 'matterNo' },
     { key: "matterUnit", title: '委托单位', dataIndex: 'matterUnit' },
     { key: "matterItem", title: '委托事项', dataIndex: 'matterItem' },
-    { key: "submitUser", title: '提交人', dataIndex: 'submitUser' },
-    { key: "matterDate", title: '创建时间', dataIndex: 'matterDate' },
+    // { key: "submitUser", title: '提交人', dataIndex: 'submitUser' },
+    { key: "matterDate", title: '委托时间', dataIndex: 'matterDate' },
     {
       key: "operation",
       title: '操作',
@@ -209,22 +179,12 @@ export default function Search() {
   };
 
   const handleSearch = async (searchForm: any) => {
-
-    try {
-      const res = await caseApi.combinationQuery(searchForm);
-      if (res.code === 0) {
-        setDataSource(res.data);
-        notification.success({
-          message: '查询成功',
-          description: '数据已更新'
-        });
-      }
-    } catch (err: any) {
-      notification.error({
-        message: '查询失败',
-        description: err.message
-      });
-    }
+    const res = await caseApi.combinationQuery(searchForm);
+    setDataSource(res);
+    notification.success({
+      message: '查询成功',
+      description: '数据已更新'
+    });
   };
 
   return (
@@ -245,9 +205,9 @@ export default function Search() {
             <Form.Item name="matterUnit">
               <Input allowClear placeholder="委托单位" />
             </Form.Item>
-            <Form.Item name="direction">
+            {/* <Form.Item name="direction">
               <Input allowClear placeholder="敌情方向" />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item name="matterItem">
               <Select
                 placeholder="委托事项"

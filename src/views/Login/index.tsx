@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { Input, Space, Button, message } from 'antd';
 import styles from "./login.module.scss"
 import initLoginBg from "./init"
@@ -35,25 +35,24 @@ const view = () => {
   //   setCaptchaVal(e.target.value);
   // }
   // 点击登录按钮的事件函数
+  const [loading, setLoading] = useState(false)
   const gotoLogin = async () => {
+    setLoading(true)
     // 验证是否有空值
     if (!usernameVal.trim() || !passwordVal.trim()) {
       message.warning("请完整输入信息！")
       return
     }
-    login({
+    setLoading(true)
+    const res = await login({
       username: usernameVal,
       password: passwordVal
-    }).then(res => {
-      if (res.code === 0) {
-        message.success("登录成功")
-        localStorage.setItem("userInfo", JSON.stringify(res.data))
-        localStorage.setItem("token", res.data.token)
-        navigateTo("/main")
-      } else {
-        message.error(res.message)
-      }
     })
+    setLoading(false)
+    message.success("登录成功")
+    localStorage.setItem("userInfo", JSON.stringify(res))
+    localStorage.setItem("token", res.token)
+    navigateTo("/main")
     // })  
     // // 发起登录请求
     // let loginAPIRes = await LoginAPI({
@@ -103,7 +102,18 @@ const view = () => {
 
   // }
 
-
+  useEffect(() => {
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter'){
+        gotoLogin()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [usernameVal, passwordVal])
   return (
     <div className={styles.loginPage}>
       {/* 存放背景 */}
@@ -118,8 +128,8 @@ const view = () => {
         {/* 表单部分 */}
         <div className="form">
           <Space direction="vertical" size="large" style={{ display: 'flex' }}>
-            <Input placeholder="用户名" onChange={usernameChange} />
-            <Input.Password placeholder="密码" onChange={passwordChange} />
+            <Input placeholder="用户名" onChange={(e) => setUsernameVal(e.target.value)} value={usernameVal} />
+            <Input.Password placeholder="密码" onChange={(e) => setPasswordVal(e.target.value)} value={passwordVal} />
             {/* 验证码盒子 */}
             {/* <div className="captchaBox">
                 <Input placeholder="验证码" onChange={captchaChange}/>
@@ -127,7 +137,7 @@ const view = () => {
                   <img height="38" src={captchaImg} alt="" />
                 </div>
               </div> */}
-            <Button type="primary" className="loginBtn" block onClick={gotoLogin}>登录</Button>
+            <Button type="primary" className="loginBtn" loading={loading} block onClick={gotoLogin}>登录</Button>
           </Space>
         </div>
       </div>

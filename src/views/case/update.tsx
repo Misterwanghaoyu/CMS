@@ -1,160 +1,230 @@
-import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex, App } from 'antd';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { Space, Button, Input, Select, DatePicker, Form, Flex, App, Table, Card, Popconfirm } from 'antd';
+import { useEffect, useState } from 'react'
 import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
 import DecryptionForm from '@/components/DecryptionForm';
-import { UploadOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { caseApi } from '@/request/api';
-import { parseExcel } from '@/utils/convertFunctions';
+import { IdType, MatterItemType } from '@/utils/enum';
 import dayjs from 'dayjs';
-import { MatterItemType } from '@/utils/enum';
+
+/**
+ * 案件更新页面组件
+ */
 export default function DataUpdatePage() {
+  // 获取路由信息
   const location = useLocation();
-  const { notification } = App.useApp();
+  const { editItem } = location.state
+  // 路由导航
   const navigatorTo = useNavigate()
-  const [commissionMatters, setCommissionMatters] = useState<MatterItemType>(location.state?.editItem.matterItem)
-  const [editRowData] = useState<any>({ cracked: false })
-  const [form] = Form.useForm();
-  const handleReturn = () => {
-    form.resetFields()
-    navigatorTo(-1)
+  // 委托事项状态
+  const [commissionMatters, setCommissionMatters] = useState<MatterItemType>(editItem.matterItem)
+  // 表单实例
+  const [commonFieldsForm] = Form.useForm();
+  // 展开行表单实例
+  const [expandForm] = Form.useForm();
+
+  /**
+   * 初始化加载表单数据
+   */
+  const refetchData = async () => {
+    if (editItem) {
+      let res: JudicialDataType[] | DecryptionDataType[] = []
+      if (commissionMatters === MatterItemType.judicial) {
+        res = await caseApi.getJudicialMatterNo(`matterNo=${editItem.matterNo}`)
+      } else if (commissionMatters === MatterItemType.decryption) {
+        res = await caseApi.getDecryptionMatterNo(`matterNo=${editItem.matterNo}`)
+      }
+      const { matterNo, matterUnit, matterItem, matterDate } = editItem
+      commonFieldsForm.setFieldsValue({
+        matterNo,
+        matterUnit,
+        matterItem,
+        matterDate: dayjs(matterDate)
+      })
+      setData(res)
+    }
   }
   useEffect(() => {
-    if (location.state) {
-      const { editItem } = location.state
-      if (editItem.matterItem === MatterItemType.judicial) {
-        // setCommissionMatters(1)
-        caseApi.getJudicialById(`matterId=${editItem.matterId}&judicialId=1`).then(res => {
-          form.setFieldsValue(res.data)
-        })
-      } else if (editItem.matterItem === MatterItemType.decryption) {
-        // setCommissionMatters(2)
-        caseApi.getDecryptionById(`matterId=${editItem.matterId}&decryptionId=1`).then(res => {
-          form.setFieldsValue(res.data)
-        })
-      }
-    }
+    refetchData()
   }, [])
-  const whichForm = useMemo(() => {
-    if (commissionMatters === MatterItemType.judicial) return <JudicialIdentificationForm />
-    else if (commissionMatters === MatterItemType.decryption) return <DecryptionForm form={form} />
-    else return <></>
-  }, [commissionMatters])
+
+  /**
+   * 更新案件处理函数
+   */
   const handleUpdateCase = async (caseForm: any) => {
-    caseForm.matterId = location.state?.editItem.matterId
-    caseForm.matterDate = dayjs(caseForm.matterDate).format("YYYY-MM-DD HH:mm:ss")
-    if (commissionMatters === MatterItemType.judicial) {
-      caseApi.updateJudicial(caseForm).then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: '成功',
-            description: '数据更新成功'
-          })
-          navigatorTo(-1)
-        } else {
-          notification.error({
-            message: '失败',
-            description: res.message
-          })
-        }
-      }).catch(err => {
-        notification.error({
-          message: '失败',
-          description: err.message
-        })
-      })
-    } else if (commissionMatters === MatterItemType.decryption) {
-      caseApi.updateDecryption(caseForm).then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: '成功',
-            description: '数据更新成功'
-          })
-          navigatorTo(-1)
-        } else {
-          notification.error({
-            message: '失败',
-            description: res.message
-          })
-        }
-      }).catch(err => {
-        notification.error({
-          message: '失败',
-          description: err.message
-        })
-      })
-    }
+    console.log(caseForm);
   };
 
-  const handleImportSuccess = () => {
-    notification.success({
-      message: '成功',
-      description: '数据导入成功'
-    })
+  /**
+   * 删除案件处理函数
+   */
+  const handleDelete = async (key: string) => {
+    const newData = data.filter(item => item.key !== key);
+    setData(newData as any);
+  };
+
+  /**
+   * 表格1数据类型接口
+   */
+  interface JudicialDataType {
+    key: string;
+    direction: string; // 敌情方向
+    subjectName: string; // 对象姓名
+    idType: IdType; // 证件类型
+    idNumber: string; // 证件号码
+    sampleCount: number; // 检材数量
+    sampleVolume: number; // 检材容量
+    description: string; // 案情简介
+    workContent: string; // 工作内容
+    workResult: string; // 工作成果
+    submitUser: string; // 提交人
+    remarks: string; // 备注
+    // judicialId: number; // 司法鉴定ID
+    // matterId: number; // 案件ID
+    // matterDate: Date | null; // 案件日期
+    // matterItem: string | null; // 委托事项
+    // matterNo: string | null; // 案件编号
+    // matterUnit: string | null; // 委托单位
   }
 
-  const handleImportError = (error: any) => {
-    notification.error({
-      message: '错误',
-      description: error.message || '导入失败'
-    })
+  /**
+   * 表格2数据类型接口
+   */
+  interface DecryptionDataType {
+    key: string;
+    cracked: number; // 是否破译
+    // decryptionId: number; // 破译ID
+    direction: string; // 敌情方向
+    encryptionType: string; // 加密类型
+    feedback: string; // 反馈
+    fileName: string; // 文件名
+    matterId: number; // 案件ID
+    plaintextPassword: string; // 明文密码
+    remark: string; // 备注
+    source: string; // 来源
+    submitUser: string // 提交人
   }
-  const importExcel = async (e: ChangeEvent<HTMLInputElement>) => {
-    try {
-      const result = await parseExcel(e) as [any[], any[]];
-      const [judicialData, decryptionData] = result;
 
-      if (judicialData.length > 0) {
-        const res = await caseApi.importJudicialExcel(judicialData)
-        if (res.code === 0) {
-          handleImportSuccess()
-        } else {
-          handleImportError(res)
-        }
-      }
 
-      if (decryptionData.length > 0) {
-        const res = await caseApi.importDecryptionExcel(decryptionData)
-        if (res.code === 0) {
-          handleImportSuccess()
-        } else {
-          handleImportError(res)
-        }
-      }
-    } catch (err: any) {
-      handleImportError(err)
+  /**
+   * 生成初始表格数据
+   */
+  // const originData = Array.from({ length: 100 }).map<DataType>((_, i) => ({
+  //   key: i.toString(),
+  //   direction: `敌情方向${i}`,
+  //   subjectName: `对象姓名${i}`,
+  //   idType: i % 2 === 0 ? 1 : 2,
+  //   idNumber: `证件号码${i}`,
+  //   sampleCount: i,
+  //   sampleVolume: i,
+  //   description: `案情简介${i}`,
+  //   workContent: `工作内容${i}`,
+  //   workResult: `工作成果${i}`,
+  //   remarks: `备注${i}`,
+  // }));
+
+  // 表格数据状态
+  const [data, setData] = useState<JudicialDataType[] | DecryptionDataType[]>([]);
+  // 展开行的key数组
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  // 当前展开行的记录
+  const [expandedRecord, setExpandedRecord] = useState<JudicialDataType | DecryptionDataType | null>(null);
+
+  /**
+   * 表格列配置
+   */
+  const columns = commissionMatters === MatterItemType.judicial ? [
+    { key: 'key', title: '序号', dataIndex: 'key', inputType: "number", editable: false },
+    { key: "direction", title: '敌情方向', dataIndex: 'direction', editable: true },
+    { key: "subjectName", title: '对象姓名', dataIndex: 'subjectName', editable: true },
+    { key: "idType", title: '证据类型', dataIndex: 'idType', editable: true, inputType: "select" },
+    { key: "idNumber", title: '证件号码', dataIndex: 'idNumber', editable: true },
+    { key: "sampleCount", title: '检材数量', dataIndex: 'sampleCount', inputType: "number", editable: true },
+    { key: "sampleVolume", title: '检材容量', dataIndex: 'sampleVolume', inputType: "number", editable: true },
+    { key: "description", title: '案情简介', dataIndex: 'description', editable: true, inputType: "textarea" },
+    { key: "workContent", title: '工作内容', dataIndex: 'workContent', editable: true, inputType: "textarea" },
+    { key: "workResult", title: '工作成果', dataIndex: 'workResult', editable: true, inputType: "textarea" },
+    { key: "remarks", title: '备注', dataIndex: 'remarks', editable: true, inputType: "textarea" },
+    {
+      key: "operation",
+      title: '操作',
+      dataIndex: 'operation',
+      render: (_: any, record: JudicialDataType | DecryptionDataType) => {
+        return (
+          <Space>
+            <Popconfirm
+              title="删除案件"
+              description="确认删除此案件?"
+              onConfirm={() => handleDelete(record.key)}
+              okText="是"
+              cancelText="否"
+            >
+              <Button type='link' danger>
+                <DeleteOutlined />删除
+              </Button>
+            </Popconfirm>
+          </Space>
+        )
+      },
     }
+  ] : [
+    { key: 'key', title: '序号', dataIndex: 'key', inputType: "number", editable: false },
+    { key: "direction", title: '敌情方向', dataIndex: 'direction', editable: true },
+    { key: "cracked", title: '是否破译', dataIndex: 'cracked', editable: true, inputType: "select" },
+    { key: "plaintextPassword", title: '明文密码', dataIndex: 'plaintextPassword', editable: true },
+    { key: "encryptionType", title: '加密类型', dataIndex: 'encryptionType', editable: true },
+    { key: "feedback", title: '反馈', dataIndex: 'feedback', editable: true, inputType: "textarea" },
+    { key: "fileName", title: '文件名', dataIndex: 'fileName', editable: true },
+    { key: "source", title: '来源', dataIndex: 'source', editable: true },
+    { key: "submitUser", title: '提交人', dataIndex: 'submitUser', editable: true },
+    { key: "remark", title: '备注', dataIndex: 'remark', editable: true, inputType: "textarea" },
+    {
+      key: "operation",
+      title: '操作',
+      dataIndex: 'operation',
+      render: (_: any, record: JudicialDataType | DecryptionDataType) => {
+        return (
+          <Space>
+            <Popconfirm
+              title="删除案件"
+              description="确认删除此案件?"
+              onConfirm={() => handleDelete(record.key)}
+              okText="是"
+              cancelText="否"
+            >
+              <Button type='link' danger>
+                <DeleteOutlined />删除
+              </Button>
+            </Popconfirm>
+          </Space>
+        )
+      },
+    }
+  ];
+
+  /**
+   * 展开行数据变化时更新表单
+   */
+  useEffect(() => {
+    if (expandedRecord) {
+      expandForm.setFieldsValue(expandedRecord);
+    }
+  }, [expandedRecord]);
+  const handleSaveExpand = async (values: any) => {
+    console.log(values);
   }
 
   return (
-    <Form
-      layout="vertical"
-      form={form}
-      style={{ maxWidth: "90%" }}
-      initialValues={{ remember: true }}
-      onFinish={handleUpdateCase}
-      autoComplete="off"
-    >
-      <Flex justify='space-between'>
-        <Typography.Title level={5} style={{ margin: "0 0 10px 0" }}>基本信息</Typography.Title>
-        <Button>
-          <input
-            type="file"
-            onChange={importExcel}
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              opacity: 0,
-              cursor: "pointer"
-            }}
-          />
-          <UploadOutlined />
-          <Typography.Paragraph style={{ margin: 0 }}>导入 Excel 文件</Typography.Paragraph>
-        </Button>
-      </Flex>
-      <Row gutter={16} justify="space-between">
-        <Col span={10}>
+    <Card title={
+      <Form
+        layout="inline"
+        form={commonFieldsForm}
+        initialValues={{ remember: true }}
+        onFinish={handleUpdateCase}
+        autoComplete="off"
+      >
+        <Flex justify='space-between' style={{ width: '100%' }}>
           <Form.Item
             label="委托事项"
             name="matterItem"
@@ -164,24 +234,23 @@ export default function DataUpdatePage() {
               style={{
                 width: "100%",
               }}
+              disabled
               placeholder={"选择类别"}
               allowClear
               onChange={(value) => setCommissionMatters(value)}
               value={commissionMatters}
               options={[
                 {
-                  value: 1,
+                  value: MatterItemType.judicial,
                   label: "司法鉴定",
                 },
                 {
-                  value: 2,
+                  value: MatterItemType.decryption,
                   label: "破译解密",
                 }
               ]}
             />
           </Form.Item>
-        </Col>
-        <Col span={10}>
           <Form.Item
             label="委托单位"
             name="matterUnit"
@@ -189,11 +258,7 @@ export default function DataUpdatePage() {
           >
             <Input placeholder="请输入委托单位" />
           </Form.Item>
-        </Col>
 
-      </Row>
-      <Row gutter={16} justify="space-between">
-        <Col span={10}>
           <Form.Item
             label="检案编号"
             name="matterNo"
@@ -201,9 +266,7 @@ export default function DataUpdatePage() {
           >
             <Input placeholder="请输入检案编号" />
           </Form.Item>
-        </Col>
 
-        <Col span={10}>
           <Form.Item
             label="委托日期"
             name="matterDate"
@@ -211,20 +274,50 @@ export default function DataUpdatePage() {
           >
             <DatePicker style={{ width: '100%' }} placeholder="请输入委托日期" />
           </Form.Item>
-        </Col>
-      </Row>
-      {whichForm}
-      <Form.Item>
-        <Space style={{ display: "flex", justifyContent: "right" }}>
-          <Button type="primary" htmlType="submit">
-            提交
-          </Button>
-          <Button onClick={handleReturn}>
-            返回
-          </Button>
-        </Space>
-      </Form.Item>
-    </Form>
-
+          <Form.Item>
+            <Button type="primary" htmlType="submit">保存</Button>
+          </Form.Item>
+        </Flex>
+      </Form>
+    }
+    >
+      <Table<JudicialDataType | DecryptionDataType>
+        expandable={{
+          expandedRowRender: (record) => {
+            return <Form form={expandForm} component={false} onFinish={handleSaveExpand}>
+              {commissionMatters === MatterItemType.judicial ? <JudicialIdentificationForm /> : <DecryptionForm form={expandForm} />}
+              <Form.Item>
+                <Space style={{ display: "flex", justifyContent: "right" }}>
+                  <Button type="primary" htmlType="submit" onClick={() => expandForm.submit()}>暂存</Button>
+                  <Button onClick={() => expandForm.resetFields()}>重置</Button>
+                  <Button onClick={() => {
+                    setExpandedRowKeys([]);
+                    setExpandedRecord(null);
+                  }}>取消</Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          },
+          expandedRowKeys: expandedRowKeys
+        }}
+        bordered
+        dataSource={data}
+        columns={columns}
+        rowClassName="editable-row"
+        onRow={(record) => ({
+          onClick: () => {
+            const key = record.key as string;
+            const expanded = expandedRowKeys.includes(key);
+            if (expanded) {
+              setExpandedRowKeys([]);
+              setExpandedRecord(null);
+            } else {
+              setExpandedRowKeys([key]);
+              setExpandedRecord(record);
+            }
+          }
+        })}
+      />
+    </Card>
   )
 }

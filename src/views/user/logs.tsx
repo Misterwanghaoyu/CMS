@@ -88,15 +88,17 @@ export default function Logs() {
     { key: "createDate", title: '创建时间', dataIndex: 'createDate' },
   ];
 
+  const fetchData = async () => {
+    const res = await logsApi.getLogs();
+    const withKeyData = res.map((item: any, index: number) => ({
+      ...item,
+      key: index
+    }));
+    setDataSource(withKeyData);
+  }
   // 副作用
   useEffect(() => {
-    logsApi.getLogs().then(res => {
-      const withKeyData = res.data.map((item: any, index: number) => ({
-        ...item,
-        key: index
-      }));
-      setDataSource(withKeyData);
-    });
+    fetchData();
   }, []);
 
   return (

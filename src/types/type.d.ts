@@ -1,9 +1,10 @@
 // 基础菜单项接口
 interface BaseMenuItem {
-  label: string
+  label?: string
   key: string
   icon?: ReactElement | JSX.Element | null
   children?: any[]
+  hidden?: boolean
 }
 
 // 导航菜单项继承基础菜单项
@@ -13,17 +14,15 @@ interface NavMenuItemType extends BaseMenuItem {
 
 // 菜单项类型继承基础菜单项
 interface MenuItemType extends BaseMenuItem {
-  disabled?: boolean
+  hidden?: boolean
 }
 
 // 路由数据项继承基础菜单项
 interface RouteDataItemType extends BaseMenuItem {
   path: string
   component: JSX.Element
-  meta: {
+  meta?: {
     title: string
-    icon?: JSX.Element
-    disabled?: boolean
   }
   children?: RouteDataItemType[]
 }

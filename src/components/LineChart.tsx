@@ -11,6 +11,7 @@ interface LineChartProps {
 }
 const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
   const chartRef = useRef(null);
+  if(!data) return <div>暂无数据</div>
   const { date, total, totalCapacity } = data
   useEffect(() => {
     if (!chartRef.current) return;

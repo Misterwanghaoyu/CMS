@@ -11,21 +11,21 @@ import { logsApi } from "@/request/api";
 function convertRoutesToMenuItems(routes: RouteDataItemType[], parentPath = '') {
   const navigateTo = useNavigate()
 
-  return routes.map(route => {
+  const menuItems = routes.map(route => {
     const fullPath = parentPath ? `${parentPath}/${route.path}` : route.path;
+    if (route.hidden) return
     const menuItem: MenuItemType = {
       label: route.label || '',
       key: fullPath || '',
-      icon: route.meta.icon || null,
-      disabled: route.meta.disabled
+      icon: route.icon || null,
     };
-
     if (route.children && route.children.length > 0) {
       menuItem.children = convertRoutesToMenuItems(route.children, fullPath);
     }
-
     return menuItem;
   });
+  // 过滤掉undefined
+  return menuItems.filter(item => item !== undefined) as MenuItemType[];
 }
 
 function convertRoutesToRouteItems(routes: RouteDataItemType[], parentPath = '') {
@@ -151,10 +151,10 @@ const parseExcel = async (e: ChangeEvent<HTMLInputElement>) => {
   })
 }
 
-export { 
-  convertRoutesToMenuItems, 
-  convertRoutesToBreadcrumbItems, 
-  convertRoutesToRouteItems, 
-  exportAsExcel, 
-  parseExcel 
+export {
+  convertRoutesToMenuItems,
+  convertRoutesToBreadcrumbItems,
+  convertRoutesToRouteItems,
+  exportAsExcel,
+  parseExcel
 }

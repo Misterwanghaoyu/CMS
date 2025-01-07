@@ -40,21 +40,21 @@ export const routeData: RouteDataItemType[] = [
   {
     label: '首页',
     key: 'main',
+    icon: <HomeOutlined />,
     path: 'main',
     component: withLoadingComponent(<Main />),
     meta: {
       title: '首页',
-      icon: <HomeOutlined />
     },
   },
   {
     label: '数据信息',
+    icon: <LineChartOutlined />,
     key: 'data',
     path: 'data',
     component: withLoadingComponent(<Data />),
     meta: {
       title: '数据信息',
-      icon: <LineChartOutlined />,
     },
     children: [
       {
@@ -79,12 +79,12 @@ export const routeData: RouteDataItemType[] = [
       },
       {
         label: '数据修改',
+        hidden: true,
         key: 'update',
         path: 'update',
         component: withLoadingComponent(<DataUpdate />),
         meta: {
           title: '数据修改',
-          disabled: true
           // icon: <OrderedListOutlined/>
         },
       },
@@ -92,12 +92,12 @@ export const routeData: RouteDataItemType[] = [
   },
   {
     label: '用户管理',
+    icon: <UserOutlined />,
     key: 'user',
     path: 'user',
     component: withLoadingComponent(<User />),
     meta: {
       title: '用户管理',
-      icon: <UserOutlined />,
     },
     children: [
       {
@@ -145,11 +145,11 @@ const routes: RouteItemType[] = [
   },
   {
     path: "/403",
-    element: <NoPermissionPage/>
+    element: <NoPermissionPage />
   },
   {
     path: "/404",
-    element: <NotFoundPage/>
+    element: <NotFoundPage />
   },
   {
     path: "/data",

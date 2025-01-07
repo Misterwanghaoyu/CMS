@@ -2,9 +2,8 @@ import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 export default function BarChart({data}:{data:{keywords:string[],total:number[]}}) {
   const chartRef = useRef(null);
-
+  if (!data) return <div>暂无数据</div>
   const {keywords,total} = data
-  
   useEffect(() => {
     if (!chartRef.current) return;
     const chart = echarts.init(chartRef.current);

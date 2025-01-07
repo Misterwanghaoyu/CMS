@@ -12,8 +12,7 @@ import {
   App,
   Flex,
 } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { debounce, throttle } from "lodash"
+import { useEffect, useMemo, useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 export default function Information() {
@@ -45,7 +44,7 @@ export default function Information() {
       key: "username",
     },
     {
-      title: "联系方式", 
+      title: "联系方式",
       dataIndex: "mobile",
       key: "mobile",
     },
@@ -66,8 +65,8 @@ export default function Information() {
     },
     {
       title: "权限",
-      dataIndex: "roleId",
-      key: "roleId",
+      dataIndex: "role",
+      key: "role",
     },
     {
       title: "操作",
@@ -95,24 +94,9 @@ export default function Information() {
   ];
 
   // 数据获取方法
-  const reFetch = () => {
-    userApi.getAll()
-      .then(res => {
-        if (res.code === 0) {
-          setUserList(res.data)
-        } else {
-          notification.error({
-            message: "错误",
-            description: "something wrong,request rejcted."
-          })
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "错误",
-          description: err.message
-        })
-      });
+  const reFetch = async () => {
+    const res = await userApi.getAll()
+    setUserList(res)
   };
 
   // 事件处理方法
@@ -140,54 +124,24 @@ export default function Information() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (userId: number) => {
-    userApi.delete([userId])
-      .then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: "成功",
-            description: "删除成功"
-          });
-          reFetch();
-        } else {
-          notification.error({
-            message: "错误",
-            description: res.message
-          });
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "错误",
-          description: err.message
-        });
-      });
+  const handleDelete = async (userId: number) => {
+    await userApi.delete([userId])
+    notification.success({
+      message: "成功",
+      description: "删除成功"
+    });
+    reFetch();
   };
 
-  const handleUserSearch = (value: string) => {
+  const handleUserSearch = async (value: string) => {
     if (value.length === 0) return;
-    
-    userApi.searchById(value)
-      .then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: "成功",
-            description: "查询成功"
-          });
-          setUserList([res.data]);
-        } else {
-          notification.error({
-            message: "错误",
-            description: res.message
-          });
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "错误",
-          description: err.message
-        });
-      });
+
+    const res = await userApi.searchById(value)
+    notification.success({
+      message: "成功",
+      description: "查询成功"
+    });
+    setUserList([res]);
   };
 
   // 副作用
@@ -228,7 +182,7 @@ export default function Information() {
         />
       </Space>
 
-      <AddEditUserModal 
+      <AddEditUserModal
         selectedRowItem={selectedRowItem}
         isModalOpen={isModalOpen}
         isUpdate={isUpdate}
@@ -238,9 +192,9 @@ export default function Information() {
       />
 
       {selectedRowItem && (
-        <Card 
-          size="default" 
-          title={selectedRowItem.realName} 
+        <Card
+          size="default"
+          title={selectedRowItem.realName}
           style={{ width: "100%" }}
         >
           <p>客户ID：{selectedRowItem.userId}</p>

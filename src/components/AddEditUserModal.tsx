@@ -1,6 +1,7 @@
 import { userApi } from '@/request/api'
 import { RoleType, SexType } from '@/utils/enum'
-import { Modal, Input, Select, Space, Button, Form, message, FormInstance, App } from 'antd'
+import { Modal, Input, Select, Space, Button, Form, message, FormInstance, App, notification } from 'antd'
+import { useEffect, useState } from 'react'
 
 interface PropsType {
   selectedRowItem: UserDataType | null
@@ -16,69 +17,36 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
   const handleAddUpdateUser = async (formData: UserDataType) => {
     if (isUpdate && selectedRowItem) {
       formData.userId = selectedRowItem.userId
-      userApi.update(formData).then(
-        res => {
-          if (res.code === 0) {
-            notification.success({
-              message: "成功",
-              description: "修改成功"
-            })
-            form.resetFields()
-            setIsModalOpen(false)
-            reFetch()
-          } else {
-            notification.error({
-              message: "错误",
-              description: res.message
-            })
-          }
-        },
-        rej => {
-          notification.error({
-            message: "错误",
-            description: "something wrong,request rejcted."
-          })
-        }
-      ).catch(err => {
-        notification.error({
-          message: "错误",
-          description: err.message
-        })
-      }
-      )
+      await userApi.update(formData)
+      notification.success({
+        message: "成功",
+        description: "修改成功"
+      })
+      form.resetFields()
+      setIsModalOpen(false)
+      reFetch()
     } else {
-      userApi.add(formData).then(
-        res => {
-          if (res.code === 0) {
-            notification.success({
-              message: "成功",
-              description: "数据新增成功"
-            })
-            form.resetFields()
-            setIsModalOpen(false)
-            reFetch()
-          } else {
-            notification.error({
-              message: "错误",
-              description: res.message
-            })
-          }
-        },
-        rej => {
-          notification.error({
-            message: "错误",
-            description: "something wrong,request rejcted."
-          })
-        }
-      ).catch(err => {
-        notification.error({
-          message: "错误",
-          description: err.message
-        })
-      }
-      )
+      await userApi.add(formData)
+      notification.success({
+        message: "成功",
+        description: "数据新增成功"
+      })
+      form.resetFields()
+      setIsModalOpen(false)
+      reFetch()
     }
-  };
+  }
+
+  const [roleList, setRoleList] = useState<any[]>([]);
+  // 获取角色列表
+  useEffect(() => {
+    userApi.getAllRole().then(res => {
+      setRoleList(res.map((item: any) => ({
+        value: item.roleId,
+        label: item.roleName
+      })))
+    })
+  }, [])
   return (
     <Modal
       title={isUpdate ? "编辑用户" : "新增用户"}
@@ -104,13 +72,13 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
         <Form.Item
           label="密码"
           name="password"
-          rules={[{ required: true, message: "请输入密码" }, { len: 6, message: "请输入至少6位密码" }]}
+          rules={[{ required: true, message: "请输入密码" }, { min: 6, message: "请输入至少6位密码" }]}
         >
           <Input.Password placeholder="请输入密码" />
         </Form.Item>
         <Form.Item
           label="权限"
-          name="role"
+          name="roleId"
           rules={[{ required: true, message: "请选择权限" }]}
         >
           <Select
@@ -119,16 +87,10 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
             }}
             placeholder={"请选择权限"}
             allowClear
-            options={[
-              {
-                value: RoleType.admin,
-                label: "管理员",
-              },
-              {
-                value: RoleType.user,
-                label: "普通用户",
-              }
-            ]}
+            options={roleList.map((item: any) => ({
+              value: item.value,
+              label: item.label
+            }))}
           />
         </Form.Item>
 
@@ -193,4 +155,5 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
     </Modal>
   )
 }
+
 export default AddEditUserModal
