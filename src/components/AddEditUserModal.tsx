@@ -14,6 +14,10 @@ interface PropsType {
 const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, isUpdate, form, setIsModalOpen, reFetch }) => {
   const { notification } = App.useApp();
 
+  const handleCancel = () => {
+    form.resetFields()
+    setIsModalOpen(false)
+  }
   const handleAddUpdateUser = async (formData: UserDataType) => {
     if (isUpdate && selectedRowItem) {
       formData.userId = selectedRowItem.userId
@@ -51,7 +55,7 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
     <Modal
       title={isUpdate ? "编辑用户" : "新增用户"}
       open={isModalOpen}
-      onCancel={() => setIsModalOpen(false)}
+      onCancel={handleCancel}
       footer={[]}
     >
       <Form
@@ -72,13 +76,13 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
         <Form.Item
           label="密码"
           name="password"
-          rules={[{ required: true, message: "请输入密码" }, { min: 6, message: "请输入至少6位密码" }]}
+          rules={[{ required: !isUpdate, message: "请输入密码" }, { min: 6, message: "请输入至少6位密码" }]}
         >
           <Input.Password placeholder="请输入密码" />
         </Form.Item>
         <Form.Item
           label="权限"
-          name="roleId"
+          name="roleName"
           rules={[{ required: true, message: "请选择权限" }]}
         >
           <Select
@@ -87,10 +91,7 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
             }}
             placeholder={"请选择权限"}
             allowClear
-            options={roleList.map((item: any) => ({
-              value: item.value,
-              label: item.label
-            }))}
+            options={roleList}
           />
         </Form.Item>
 

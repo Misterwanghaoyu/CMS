@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { Input, Space, Button, message } from 'antd';
 import styles from "./login.module.scss"
 import initLoginBg from "./init"
@@ -6,6 +6,7 @@ import initLoginBg from "./init"
 import './login.less'
 import { useNavigate } from "react-router-dom"
 import { login } from "@/request/api"
+import { debounce } from "lodash";
 const view = () => {
   let navigateTo = useNavigate();
   // 加载完这个组件之后，加载背景
@@ -22,33 +23,30 @@ const view = () => {
   // // 定义一个变量保存验证码图片信息
   // const [captchaImg,setCaptchaImg] = useState(""); 
 
-  const usernameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // 获取用户输入的用户名
-    // console.log(e.target.value);
-    // 修改usernameVal这个变量为用户输入的那个值。 以后拿到usernameVal这个变量就相当于拿到用户输入的信息。
-    setUsernameVal(e.target.value);
-  }
-  const passwordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPasswordVal(e.target.value);
-  }
+  // const usernameChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   // 获取用户输入的用户名
+  //   // console.log(e.target.value);
+  //   // 修改usernameVal这个变量为用户输入的那个值。 以后拿到usernameVal这个变量就相当于拿到用户输入的信息。
+  //   setUsernameVal(e.target.value);
+  // }
+  // const passwordChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   setPasswordVal(e.target.value);
+  // }
   // const captchaChange = (e:ChangeEvent<HTMLInputElement>)=>{
   //   setCaptchaVal(e.target.value);
   // }
   // 点击登录按钮的事件函数
-  const [loading, setLoading] = useState(false)
+
   const gotoLogin = async () => {
-    setLoading(true)
     // 验证是否有空值
     if (!usernameVal.trim() || !passwordVal.trim()) {
       message.warning("请完整输入信息！")
       return
     }
-    setLoading(true)
     const res = await login({
       username: usernameVal,
       password: passwordVal
     })
-    setLoading(false)
     message.success("登录成功")
     localStorage.setItem("userInfo", JSON.stringify(res))
     localStorage.setItem("token", res.token)
@@ -83,6 +81,10 @@ const view = () => {
     //   navigateTo("/main")
     // }
   }
+  const debounceGotoLogin = useCallback(debounce(gotoLogin, 300), [usernameVal, passwordVal]);
+
+  // 在这里替换原有的 gotoLogin 调用
+
 
   // // 点击验证码图片盒子的事件函数
   // const getCaptchaImg = async ()=>{
@@ -101,14 +103,10 @@ const view = () => {
 
 
   // }
-
+  const handleKeyDown = (e: KeyboardEvent) => {
+    e.key === 'Enter' && debounceGotoLogin()
+  }
   useEffect(() => {
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter'){
-        gotoLogin()
-      }
-    }
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
@@ -130,14 +128,7 @@ const view = () => {
           <Space direction="vertical" size="large" style={{ display: 'flex' }}>
             <Input placeholder="用户名" onChange={(e) => setUsernameVal(e.target.value)} value={usernameVal} />
             <Input.Password placeholder="密码" onChange={(e) => setPasswordVal(e.target.value)} value={passwordVal} />
-            {/* 验证码盒子 */}
-            {/* <div className="captchaBox">
-                <Input placeholder="验证码" onChange={captchaChange}/>
-                <div className="captchaImg" onClick={getCaptchaImg}>
-                  <img height="38" src={captchaImg} alt="" />
-                </div>
-              </div> */}
-            <Button type="primary" className="loginBtn" loading={loading} block onClick={gotoLogin}>登录</Button>
+            <Button type="primary" className="loginBtn" block onClick={debounceGotoLogin}>登录</Button>
           </Space>
         </div>
       </div>

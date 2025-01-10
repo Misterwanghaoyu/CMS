@@ -23,8 +23,8 @@ enum OperType {
 }
 // 角色类型
 enum RoleType {
-  admin = "管理员",
-  user = "普通用户"
+  admin = 24,
+  user = 25
 }
 // 是否破解
 enum CrackedType {
@@ -32,7 +32,7 @@ enum CrackedType {
   no = "否"
 }
 
-export{
+export {
   MatterItemType,
   SexType,
   IdType,

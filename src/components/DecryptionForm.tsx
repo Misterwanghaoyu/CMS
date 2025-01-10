@@ -11,15 +11,15 @@ import {
   Typography,
 } from "antd";
 import { CrackedType } from '@/utils/enum';
-export default function DecryptionForm({ form }: { form? : FormInstance }) {
-  const [cracked, setCracked] = useState<CrackedType>(CrackedType.yes)
-
+export default function DecryptionForm({ crack, form }: { crack?: CrackedType, form? : FormInstance }) {
+  const [cracked, setCracked] = useState<CrackedType>(crack || CrackedType.yes)
   useEffect(() => {
-    if (cracked === CrackedType.yes) {
-      form?.setFieldValue("plaintextPassword", "");
+    // 当破解状态改变时,如果是未破解则清空明文密码字段
+    if (cracked === CrackedType.no) {
+      form?.setFieldValue('plaintextPassword', undefined);
     }
-  }, [cracked])
-
+  }, [cracked, form]);
+  
   return (
     <>
       <Typography.Title level={5} style={{ margin: "0 0 10px 0" }}>具体信息</Typography.Title>
@@ -68,7 +68,6 @@ export default function DecryptionForm({ form }: { form? : FormInstance }) {
         <Col span={10}>
           <Form.Item
             label="是否破解"
-            initialValue={cracked}
             name="cracked"
             rules={[{ required: true, message: "是否破解？" }]}
           >
@@ -78,17 +77,17 @@ export default function DecryptionForm({ form }: { form? : FormInstance }) {
             </Radio.Group>
           </Form.Item>
         </Col>
-        <Col span={10}>
-          <Form.Item
-            label="明文密码"
-            initialValue={""}
-            hidden={cracked !== CrackedType.yes}
-            name="plaintextPassword"
-            rules={[{ required: cracked === CrackedType.yes, message: "请输入明文密码" }]}
-          >
-            <Input placeholder="请输入明文密码" />
-          </Form.Item>
-        </Col>
+        {cracked === CrackedType.yes && (
+          <Col span={10}>
+            <Form.Item
+              label="明文密码"
+              name="plaintextPassword"
+              rules={[{ required: true, message: "请输入明文密码" }]}
+            >
+              <Input placeholder="请输入明文密码" />
+            </Form.Item>
+          </Col>
+        )}
       </Row>
       <Row gutter={16} justify="space-between">
         <Col span={10}>

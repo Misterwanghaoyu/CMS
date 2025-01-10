@@ -10,10 +10,10 @@ const store = {
  
   actionNames:{}
 }
-let actionNames = {} 
-for(let key in store.actions){
-  actionNames[key] = key
-}
-store.actionNames=actionNames;
+// let actionNames = {} 
+// for(let key in store.actions){
+//   actionNames[key] = key
+// }
+// store.actionNames=actionNames;
 
 export default store

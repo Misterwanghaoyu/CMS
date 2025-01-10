@@ -20,12 +20,16 @@ const caseApi = {
   // 组合查询
   combinationQuery: (params: any): Promise<any> => request.post("/api/matter/listByCondition", params),
   // 删除
-  delete: (params: number[]): Promise<any> => request.post("/api/matter/delMatter", params),
+  deleteMatter: (params: number[]): Promise<any> => request.post("/api/matter/delMatter", params),
+  delJudicial: (params: number[]): Promise<any> => request.post("/api/matter/delJudicial", params),
+  delDecryption: (params: number[]): Promise<any> => request.post("/api/matter/delDecryption", params),
   // 批量删除
-  deleteMultiple: (params: number[]): Promise<any> => request.post("/deleteCaseMultiple", params),
+  // deleteMultiple: (params: number[]): Promise<any> => request.post("/deleteCaseMultiple", params),
   // 更新
-  updateJudicial: (params: any): Promise<any> => request.post("/api/matter/updateJudicial", params),
-  updateDecryption: (params: any): Promise<any> => request.post("/api/matter/updateDecryption", params),
+  updateJudicialMatter: (params: any): Promise<any> => request.post("/api/matter/updateJudicialMatter", params),
+  updateDecryptionMatter: (params: any): Promise<any> => request.post("/api/matter/updateDecryptionMatter", params),
+  exportMatter: (params: any,config:any): Promise<any> => request.post("/api/file/exportMatter", params,config),
+  updateMatter: (params: any): Promise<any> => request.post("/api/matter/updateMatter", params),
 }
 const userApi = {
   // 查询
@@ -38,7 +42,8 @@ const userApi = {
   // 删除
   delete: (params: number[]): Promise<any> => request.post("/api/sysUser/delete", params),
   // 查询
-  searchById: (userId: string): Promise<any> => request.get(`/api/sysUser/info?userId=${userId}`),
+  searchByUsername: (query: any): Promise<any> => request.get("/api/sysUser/listByUsername?" + query),
+  searchByUserId: (query: any): Promise<any> => request.get("/api/sysUser/info?" + query),
 }
 const logsApi = {
   insertExportMatterLog: (params: number[]): Promise<any> => request.post("/api/matter/exportMatter", params),

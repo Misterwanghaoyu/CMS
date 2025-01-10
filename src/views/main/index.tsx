@@ -143,107 +143,120 @@ const View = () => {
   }, []);
 
   return (
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Card title={<DatePicker.RangePicker value={totalDataRange} onChange={setTotalDataRange} />}>
-          <Row gutter={16}>
-            {totalData.map(item => (
-              <Col span={8} key={item.title}>
-                <Card
-                  style={{
-                    background: item.color,
-                    borderRadius: '8px',
-                    marginBottom: '24px'
-                  }}
-                >
-                  <Space align="center">
-                    {item.icon}
-                    <Statistic title={item.title} value={item.value} />
-                  </Space>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Card>
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Card title={
+        <Space>
+          <Typography.Title level={5} style={{ margin: 0 }}>委托时间</Typography.Title>
+          <DatePicker.RangePicker value={totalDataRange} onChange={setTotalDataRange} />
+        </Space>
+      }>
+        <Row gutter={16}>
+          {totalData.map(item => (
+            <Col span={8} key={item.title}>
+              <Card
+                style={{
+                  background: item.color,
+                  borderRadius: '8px',
+                  marginBottom: '24px'
+                }}
+              >
+                <Space align="center">
+                  {item.icon}
+                  <Statistic title={item.title} value={item.value} />
+                </Space>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Card>
 
-        <Card title="司法鉴定">
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card bordered={false}>
-                <Flex vertical>
+      <Card title="司法鉴定">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Card bordered={false}>
+              <Flex vertical>
+                <Space>
+                <Typography.Title level={5} style={{ margin: 0 }}>委托时间</Typography.Title>
                   <DatePicker.RangePicker value={sampleDataRange} onChange={setSampleDataRange} />
-                  <LineChart data={sampleData} />
-                </Flex>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card bordered={false}>
-                <Flex vertical>
-                  <Input.Search
-                    defaultValue=""
-                    onSearch={(value) => handleSearch(value, 1)}
-                    placeholder="请输入敌情方向"
-                  />
-                  <BarChart data={searchValueOneData} />
-                </Flex>
-              </Card>
-            </Col>
-          </Row>
-        </Card>
+                </Space>
+                <LineChart data={sampleData} />
+              </Flex>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card bordered={false}>
+              <Flex vertical>
+                <Input.Search
+                  defaultValue=""
+                  onSearch={(value) => handleSearch(value, 1)}
+                  onChange={(e) => e.target.value === '' && handleSearch('', 1)}
+                  placeholder="请输入敌情方向"
+                />
+                <BarChart data={searchValueOneData} />
+              </Flex>
+            </Card>
+          </Col>
+        </Row>
+      </Card>
 
-        <Card title="破译解密">
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card bordered={false}>
-                <Flex vertical>
+      <Card title="破译解密">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Card bordered={false}>
+              <Flex vertical>
+                <Space>
+                <Typography.Title level={5} style={{ margin: 0 }}>委托时间</Typography.Title>
                   <DatePicker.RangePicker value={crackedDataRange} onChange={setCrackedDataRange} />
-                  <Row gutter={[16, 16]}>
+                </Space>
+                {/* <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Typography.Title level={5}>{`已破解：${crackedDataByDate[0]?.value || 0}`}</Typography.Title>
                     </Col>
                     <Col span={12}>
                       <Typography.Title level={5}>{`未破解：${crackedDataByDate[1]?.value || 0}`}</Typography.Title>
                     </Col>
-                  </Row>
-                  <PieChart name="破解情况" data={crackedDataByDate} />
-                </Flex>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card bordered={false}>
-                <Flex vertical>
-                  <Input.Search
-                    defaultValue=""
-                    onSearch={(value) => handleSearch(value, 2)}
-                    placeholder="请输入敌情方向"
-                  />
-                  <BarChart data={searchValueTwoData} />
-                </Flex>
-              </Card>
-            </Col>
-          </Row>
-        </Card>
-      </Space>
+                  </Row> */}
+                <PieChart name="破解情况" data={crackedDataByDate} />
+              </Flex>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card bordered={false}>
+              <Flex vertical>
+                <Input.Search
+                  defaultValue=""
+                  onSearch={(value) => handleSearch(value, 2)}
+                  onChange={(e) => e.target.value === '' && handleSearch('', 2)}
+                  placeholder="请输入敌情方向"
+                />
+                <BarChart data={searchValueTwoData} />
+              </Flex>
+            </Card>
+          </Col>
+        </Row>
+      </Card>
+    </Space>
 
-      // <Col span={6}>
-      //   <Flex vertical justify="space-between" style={{ height: '100%' }}>
-      //     <Card title={
-      //       <Input.Search
-      //         placeholder="请输入检案编号"
-      //         onSearch={handleSearchById}
-      //       />
-      //     }>
-      //       <PieChart name="案件情况" data={searchDataById.pieData} />
-      //       <Space direction="vertical">
-      //         <Typography.Title level={5}>司法鉴定</Typography.Title>
-      //         <Typography.Text type="secondary" strong>{`检材总数：${searchDataById.sampleCount}`}</Typography.Text>
-      //         <Typography.Text type="secondary" strong>{`检材总容量：${searchDataById.sampleCapacity}`}</Typography.Text>
-      //         <Typography.Title level={5}>破译解密</Typography.Title>
-      //         <Typography.Text type="secondary" strong>{`已破解：${searchDataById.crackedCount}`}</Typography.Text>
-      //         <Typography.Text type="secondary" strong>{`未破解：${searchDataById.notCrackedCount}`}</Typography.Text>
-      //       </Space>
-      //     </Card>
-      //   </Flex>
-      // </Col>
+    // <Col span={6}>
+    //   <Flex vertical justify="space-between" style={{ height: '100%' }}>
+    //     <Card title={
+    //       <Input.Search
+    //         placeholder="请输入检案编号"
+    //         onSearch={handleSearchById}
+    //       />
+    //     }>
+    //       <PieChart name="案件情况" data={searchDataById.pieData} />
+    //       <Space direction="vertical">
+    //         <Typography.Title level={5}>司法鉴定</Typography.Title>
+    //         <Typography.Text type="secondary" strong>{`检材总数：${searchDataById.sampleCount}`}</Typography.Text>
+    //         <Typography.Text type="secondary" strong>{`检材总容量：${searchDataById.sampleCapacity}`}</Typography.Text>
+    //         <Typography.Title level={5}>破译解密</Typography.Title>
+    //         <Typography.Text type="secondary" strong>{`已破解：${searchDataById.crackedCount}`}</Typography.Text>
+    //         <Typography.Text type="secondary" strong>{`未破解：${searchDataById.notCrackedCount}`}</Typography.Text>
+    //       </Space>
+    //     </Card>
+    //   </Flex>
+    // </Col>
   );
 };
 

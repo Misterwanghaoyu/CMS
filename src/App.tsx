@@ -38,7 +38,7 @@ function BeforeRouterEnter(){
     }
     //2、如果访问的不是登录页面，并且没有token， 跳转到登录页
     
-    if(AdminPages.includes(location.pathname) && user.permissions==="User"){
+    if(AdminPages.includes(location.pathname) && user.roleName==="用户"){
       ToWhatPage("/403","无权访问！")
     }
     return outlet

@@ -26,10 +26,10 @@ let reducer = (state = {...handleNum.state},action:{type:string})=>{
       // key是每一个键
       // 判断是不是相等
       // if(action.type==="add1"){
-      if(action.type===handleNum.actionNames[key]){
-        handleNum.actions[handleNum.actionNames[key]](newState,action);
-        break;
-      }
+      // if(action.type===handleNum.actionNames[key]){
+      //   handleNum.actions[handleNum.actionNames[key]](newState,action);
+      //   break;
+      // }
     }
     // 这样写就达到每一次写一个方法都不需要再手动来添加这几case，终于可以解放双手了！
     return newState

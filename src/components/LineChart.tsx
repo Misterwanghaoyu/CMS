@@ -23,6 +23,11 @@ const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
       legend: {
         data: ['检材总数', '检材总容量']
       },
+      toolbox: {
+        feature: {
+          saveAsImage: {}
+        }
+      },
       dataZoom: [
         {
           type: 'slider', // 滑动条型数据缩放组件
@@ -40,7 +45,7 @@ const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
       ],
       xAxis: {
         type: 'category',
-        data: date
+        data: date,
       },
       yAxis: [
         {

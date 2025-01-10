@@ -11,6 +11,8 @@ import {
   Popconfirm,
   App,
   Flex,
+  Typography,
+  Descriptions,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -29,6 +31,14 @@ export default function Information() {
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
 
+  // const detailInformationItem = useMemo(() => {
+  //   if (!selectedRowItem) return []
+  //   return Object.keys(selectedRowItem).map((key) => ({
+  //     key,
+  //     label: key,
+  //     children: selectedRowItem[key as keyof UserDataType]
+  //   }))
+  // }, [selectedRowItem])
   // 计算属性
   const total = useMemo(() => userList.length, [userList]);
 
@@ -43,30 +53,30 @@ export default function Information() {
       dataIndex: "username",
       key: "username",
     },
-    {
-      title: "联系方式",
-      dataIndex: "mobile",
-      key: "mobile",
-    },
-    {
-      title: "姓名",
-      dataIndex: "realName",
-      key: "realName",
-    },
-    {
-      title: "性别",
-      dataIndex: "sex",
-      key: "sex",
-    },
-    {
-      title: "邮箱",
-      dataIndex: "email",
-      key: "email",
-    },
+    // {
+    //   title: "联系方式",
+    //   dataIndex: "mobile",
+    //   key: "mobile",
+    // },
+    // {
+    //   title: "姓名",
+    //   dataIndex: "realName",
+    //   key: "realName",
+    // },
+    // {
+    //   title: "性别",
+    //   dataIndex: "sex",
+    //   key: "sex",
+    // },
+    // {
+    //   title: "邮箱",
+    //   dataIndex: "email",
+    //   key: "email",
+    // },
     {
       title: "权限",
-      dataIndex: "role",
-      key: "role",
+      dataIndex: "roleName",
+      key: "roleName",
     },
     {
       title: "操作",
@@ -119,6 +129,8 @@ export default function Information() {
   };
 
   const handleEdit = (item: UserDataType) => {
+    console.log(item);
+
     form.setFieldsValue(item);
     setIsUpdate(true);
     setIsModalOpen(true);
@@ -133,15 +145,23 @@ export default function Information() {
     reFetch();
   };
 
-  const handleUserSearch = async (value: string) => {
+  const handleUserSearch = async (value: string, type: string) => {
     if (value.length === 0) return;
-
-    const res = await userApi.searchById(value)
+    let res: any
+    if (type === "userId") {
+      res = await userApi.searchByUserId(`userId=${value}`)
+    } else {
+      res = await userApi.searchByUsername(`username=${value}`)
+    }
     notification.success({
       message: "成功",
       description: "查询成功"
     });
-    setUserList([res]);
+    if (res instanceof Array) {
+      setUserList(res);
+    } else {
+      setUserList([res]);
+    }
   };
 
   // 副作用
@@ -150,16 +170,23 @@ export default function Information() {
   }, []);
 
   return (
-    <Flex gap="middle" vertical>
+    <Flex gap="middle" vertical justify="space-between" style={{ height: "100%" }}>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Space>
           <Button type="primary" onClick={handleAddUserButton}>新增用户</Button>
           <Input.Search
-            onSearch={handleUserSearch}
+            onSearch={(value) => handleUserSearch(value, "userId")}
             onClear={reFetch}
             style={{ width: "200px" }}
             allowClear
             placeholder="输入用户ID查询"
+          />
+          <Input.Search
+            onSearch={(value) => handleUserSearch(value, "username")}
+            onClear={reFetch}
+            style={{ width: "200px" }}
+            allowClear
+            placeholder="输入账号查询"
           />
         </Space>
         <Table
@@ -192,14 +219,16 @@ export default function Information() {
       />
 
       {selectedRowItem && (
-        <Card
-          size="default"
-          title={selectedRowItem.realName}
-          style={{ width: "100%" }}
-        >
-          <p>客户ID：{selectedRowItem.userId}</p>
-          <p>联系方式：{selectedRowItem.mobile}</p>
-          <p>权限：{selectedRowItem.roleId}</p>
+        <Card>
+          <Descriptions title={selectedRowItem.username} extra={<Button type="primary" onClick={() => handleEdit(selectedRowItem)}>编辑</Button>}>
+            <Descriptions.Item label="用户ID">{selectedRowItem.userId}</Descriptions.Item>
+            <Descriptions.Item label="账号">{selectedRowItem.username}</Descriptions.Item>
+            <Descriptions.Item label="姓名">{selectedRowItem.realName}</Descriptions.Item>
+            <Descriptions.Item label="性别">{selectedRowItem.sex}</Descriptions.Item>
+            <Descriptions.Item label="联系方式">{selectedRowItem.mobile}</Descriptions.Item>
+            <Descriptions.Item label="邮箱">{selectedRowItem.email}</Descriptions.Item>
+            <Descriptions.Item label="权限">{selectedRowItem.roleName}</Descriptions.Item>
+          </Descriptions>
         </Card>
       )}
     </Flex>

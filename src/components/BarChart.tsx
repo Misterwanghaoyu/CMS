@@ -1,19 +1,34 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
-export default function BarChart({data}:{data:{keywords:string[],total:number[]}}) {
+export default function BarChart({ data }: { data: { keywords: string[], total: number[] } }) {
   const chartRef = useRef(null);
   if (!data) return <div>暂无数据</div>
-  const {keywords,total} = data
+  const { keywords, total } = data
   useEffect(() => {
     if (!chartRef.current) return;
     const chart = echarts.init(chartRef.current);
-    const option = {
+    const option: echarts.EChartsOption = {
       xAxis: {
         type: 'category',
-        data: keywords
+        data: keywords,
+        name: '敌情方向'
       },
-      yAxis: {
-        type: 'value'
+      yAxis:{
+        type: 'value',
+        name: '数量',
+        min: 0
+      }
+      ,
+      toolbox: {
+        feature: {
+          saveAsImage: {}
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
       },
       dataZoom: [
         {
@@ -32,10 +47,18 @@ export default function BarChart({data}:{data:{keywords:string[],total:number[]}
       ],
       series: [
         {
-          data:total,
-          type: 'bar'
-        }
-      ]
+          data: total,
+          type: 'bar',
+          animationDelay: function (idx: number) {
+            return idx * keywords.length * 5;
+          }
+        },
+
+      ],
+      animationEasing: 'elasticOut',
+      animationDelayUpdate: function (idx: number) {
+        return idx * keywords.length * 5;
+      }
     };
 
     chart.setOption(option);
@@ -49,5 +72,5 @@ export default function BarChart({data}:{data:{keywords:string[],total:number[]}
     };
 
   }, [data])
-  return  <div ref={chartRef} style={{ height: "300px"}}></div>
+  return <div ref={chartRef} style={{ height: "300px" }}></div>
 }

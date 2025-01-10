@@ -7,10 +7,10 @@ let reducer = (state = {...handler.state},action:{type:string})=>{
 
     for(let key in handler.actionNames){
       
-      if(action.type===handler.actionNames[key]){
-        handler.actions[handler.actionNames[key]](newState,action);
-        break;
-      }
+      // if(action.type===handler.actionNames[key]){
+      //   handler.actions[handler.actionNames[key]](newState,action);
+      //   break;
+      // }
     }
     
     return newState
