@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { TimePicker, DatePicker, Select, Button, Typography, Row, Col, App } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { TimePicker, DatePicker, Select, Button, Typography, Row, Col, App, Space, Input, Card, Statistic } from 'antd';
 import { backupApi } from '@/request/api';
 import dayjs from 'dayjs';
 const { Title } = Typography;
 
 const Backup = () => {
-    const {notification} = App.useApp()
+    const { notification } = App.useApp()
     const [backupType, setBackupType] = useState('daily'); // 新增状态来选择备份类型
     const [dailyTime, setDailyTime] = useState<dayjs.Dayjs | null>(null);
     const [monthlyDate, setMonthlyDate] = useState('');
-    const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(null);
+    const [currentTask, setCurrentTask] = useState<string>('');
+    // const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(null);
 
     const handleCreateBackup = async () => {
-        if(!handleEmpty())return;
+        if (!handleEmpty()) return;
         let meaning = '';
         let type = backupType === 'daily' ? 1 : 2;
 
@@ -25,12 +26,21 @@ const Backup = () => {
         try {
             const response = await backupApi.scheduleBackup({ meaning, type });
             console.log('备份创建成功:', response);
+            notification.success({
+                message: '成功',
+                description: '备份创建成功',
+            });
+            refetch();
         } catch (error) {
             console.error('备份创建失败:', error);
+            notification.error({
+                message: '错误',
+                description: '备份创建失败',
+            });
         }
     };
 
-    const handleEmpty =  () => {
+    const handleEmpty = () => {
         if (backupType === 'daily') {
             if (!dailyTime) {
                 notification.error({
@@ -39,13 +49,13 @@ const Backup = () => {
                 });
                 return false;
             }
-            if (!startDate) {
-                notification.error({
-                    message: '错误',
-                    description: '请设置开始时间',
-                });
-                return false;
-            }
+            // if (!startDate) {
+            //     notification.error({
+            //         message: '错误',
+            //         description: '请设置开始时间',
+            //     });
+            //     return false;
+            // }
         } else if (backupType === 'monthly') {
             if (!monthlyDate) {
                 notification.error({
@@ -54,23 +64,35 @@ const Backup = () => {
                 });
                 return false;
             }
-            if (!startDate) {
-                notification.error({
-                    message: '错误',
-                    description: '请设置开始时间',
-                });
-                return false;
-            }
+            // if (!startDate) {
+            //     notification.error({
+            //         message: '错误',
+            //         description: '请设置开始时间',
+            //     });
+            //     return false;
+            // }
         }
         return true;
     };
 
+    const refetch = async () => {
+        const res = await backupApi.getCurrentTask();
+        setCurrentTask(res.meaning);
+    }
+    useEffect(() => {
+        refetch();
+    }, []);
     return (
         <div style={{ padding: '20px' }}>
+            {/* <Statistic title="当前备份任务时间" value={currentTask} /> */}
+            <Space>
+                <Typography.Title level={3} style={{ margin: 0 }}>当前备份任务时间</Typography.Title>
+                <Input value={currentTask} disabled/>
+            </Space>
             <Title level={2}>选择备份类型</Title>
-            <Select 
-                value={backupType} 
-                onChange={(value) => setBackupType(value)} 
+            <Select
+                value={backupType}
+                onChange={(value) => setBackupType(value)}
                 style={{ width: '100%', marginBottom: '20px' }}
             >
                 <Select.Option value="daily">每日备份</Select.Option>
@@ -84,15 +106,15 @@ const Backup = () => {
                         <Col span={12}>
                             <label>
                                 请选择每天执行备份的时间:
-                                <TimePicker 
-                                    value={dailyTime} 
-                                    onChange={(time) => setDailyTime(time)} 
-                                    style={{ width: '100%', marginTop: '8px' }} 
+                                <TimePicker
+                                    value={dailyTime}
+                                    onChange={(time) => setDailyTime(time)}
+                                    style={{ width: '100%', marginTop: '8px' }}
                                 />
                             </label>
                         </Col>
                         <Col span={12}>
-                            <label>
+                            {/* <label>
                                 开始时间:
                                 <DatePicker 
                                     showTime 
@@ -100,7 +122,7 @@ const Backup = () => {
                                     onChange={(date) => setStartDate(date)} 
                                     style={{ width: '100%', marginTop: '8px' }} 
                                 />
-                            </label>
+                            </label> */}
                         </Col>
                     </Row>
                 </>
@@ -113,8 +135,8 @@ const Backup = () => {
                         <Col span={12}>
                             <label>
                                 请选择每月执行备份的日期:
-                                <Select 
-                                    value={monthlyDate} 
+                                <Select
+                                    value={monthlyDate}
                                     onChange={(value) => setMonthlyDate(value)}
                                     style={{ width: '100%', marginTop: '8px' }}
                                 >
@@ -125,7 +147,7 @@ const Backup = () => {
                             </label>
                         </Col>
                         <Col span={12}>
-                            <label>
+                            {/* <label>
                                 开始时间:
                                 <DatePicker 
                                     picker="month" 
@@ -133,7 +155,7 @@ const Backup = () => {
                                     onChange={(date) => setStartDate(date)} 
                                     style={{ width: '100%', marginTop: '8px' }} 
                                 />
-                            </label>
+                            </label> */}
                         </Col>
                     </Row>
                 </>
