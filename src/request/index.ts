@@ -54,6 +54,7 @@ instance.interceptors.request.use(config => {
     config.headers.Authorization = localStorage.getItem("token")
     config.headers["Content-Type"] = "application/json"
 
+
     if (config.method === "post") {
         // 对请求体进行处理
         let { data } = config

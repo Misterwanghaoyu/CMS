@@ -1,31 +1,19 @@
 import { CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { App, Button, DatePicker, Flex, Form, Input, InputNumber, Popconfirm, Select, Space, Table, TableColumnsType, TableProps, Tag, Typography } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { caseApi } from '@/request/api';
 import { MatterItemType } from '@/utils/enum';
-const downLoadFile = function (res: any) {
-  const headers = res.headers;
-  const contentType = headers['Content-Type'];
-  const blob = new Blob([res.data], { type: contentType });
-  //下载后文件名
-  let fileName = "exported_data.xlsx"
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-}
+import dayjs from 'dayjs';
+import { downLoadFile } from '@/utils/Functions';
+
 type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'];
 
 export default function Search() {
   const [searchForm] = Form.useForm();
   const navigateTo = useNavigate();
   const { message, notification } = App.useApp();
-
+  const location = useLocation()
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -39,43 +27,18 @@ export default function Search() {
   const total = useMemo(() => dataSource.length, [dataSource]);
   const hasSelected = selectedRowKeys.length > 0;
 
-  // 导出数据
   const handleExport = async () => {
     const items = dataSource.filter((item) => selectedRowKeys.includes(item.key));
     const matterIds = items.map((item) => item.matterId);
-
-    // const judicialItems = items.filter((item) => item.matterItem === MatterItemType.judicial);
-    // const decryptionItems = items.filter((item) => item.matterItem === MatterItemType.decryption);
-
-    // const judicialItemsId = judicialItems.map((item) => item.matterId);
-    // const decryptionItemsId = decryptionItems.map((item) => item.matterId);
-    // const reqData = [judicialItemsId, decryptionItemsId]
-
     const res = await caseApi.exportMatter(matterIds, { responseType: 'blob' })
     downLoadFile(res)
     notification.success({
       message: '成功',
       description: '数据已导出'
     });
-    // try {
-    //   const [judicialResults, decryptionResults] = await Promise.all([
-    //     Promise.all(judicialItemsId.map(id => caseApi.getJudicialById(`matterId=${id}&judicialId=1`))),
-    //     Promise.all(decryptionItemsId.map(id => caseApi.getDecryptionById(`matterId=${id}&decryptionId=1`)))
-    //   ]);
-
-    //   // const exportData1 = judicialResults.map(res => res.data);
-    //   // const exportData2 = decryptionResults.map(res => res.data);
-
-    //   // exportAsExcel(judicialResults, decryptionResults, matterIds);
-    // } catch (err: any) {
-    //   notification.error({
-    //     message: '导出失败',
-    //     description: err.message
-    //   });
-    // }
+    setSelectedRowKeys([]);
   };
 
-  // 展示总条数
   const showTotal = (total: number) => `共 ${total} 条`;
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -87,13 +50,40 @@ export default function Search() {
     onChange: onSelectChange,
   };
 
-  // 刷新数据
   const refreshData = async () => {
     const res = await caseApi.getAll()
     setDataSource(res)
   };
 
   useEffect(() => {
+    // if (location.state) {
+    //   const { date, direction, cracked } = location.state
+    //   if (date) {
+    //     caseApi.combinationQuery({
+    //       beginDate: date,
+    //       endDate: date
+    //     }).then((res) => {
+    //       setDataSource(res)
+    //     })
+    //   }
+    //   if (direction) {
+    //     caseApi.combinationQuery({
+    //       direction: direction
+    //     }).then((res) => {
+    //       setDataSource(res)
+    //     })
+    //   }   
+    //   if (cracked) {
+    //     caseApi.combinationQuery({
+    //       cracked: cracked
+    //     }).then((res) => {
+    //       setDataSource(res)
+    //     })
+    //   }
+
+
+    //   return
+    // }
     refreshData();
   }, []);
 
@@ -104,7 +94,7 @@ export default function Search() {
       }
     });
   };
-  // 删除操作
+
   const handleDelete = async (matterId: number) => {
     await caseApi.deleteMatter([matterId])
     notification.success({
@@ -157,17 +147,15 @@ export default function Search() {
     });
   };
 
-
-
-
   interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: any;
-    inputType: 'number' | 'text';
+    inputType: 'number' | 'text' | 'date';
     record: any;
     index: number;
   }
+
   const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     editing,
     dataIndex,
@@ -178,8 +166,17 @@ export default function Search() {
     children,
     ...restProps
   }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
+    let inputNode
+    switch (inputType) {
+      case 'number':
+        inputNode = <InputNumber />
+        break;
+      case 'date':
+        inputNode = <DatePicker />
+        break;
+      default:
+        inputNode = <Input />
+    }
     return (
       <td {...restProps}>
         {editing ? (
@@ -189,7 +186,7 @@ export default function Search() {
             rules={[
               {
                 required: true,
-                message: `Please Input ${title}!`,
+                message: `请输入 ${title}!`,
               },
             ]}
           >
@@ -203,12 +200,11 @@ export default function Search() {
   }
 
   const [form] = Form.useForm();
-
   const [editingKey, setEditingKey] = useState<React.Key>('');
-
   const isEditing = (record: any) => record.key === editingKey;
 
   const handleEdit = (record: Partial<any> & { key: React.Key }) => {
+    record.matterDate = dayjs(record.matterDate)
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
@@ -228,16 +224,18 @@ export default function Search() {
       });
       refreshData();
     } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+      console.log('验证失败:', errInfo);
     }
   };
+
   const columns = [
-    // { key: 'matterId', title: '序号', dataIndex: 'matterId' },
-    { key: "matterNo", title: '检案编号', dataIndex: 'matterNo', editable: true },
+    { key: "matterNo", title: '检案编号', dataIndex: 'matterNo', editable: true, sorter: (a: any, b: any) => a.matterNo.localeCompare(b.matterNo) },
     { key: "matterUnit", title: '委托单位', dataIndex: 'matterUnit', editable: true },
     { key: "matterItem", title: '委托事项', dataIndex: 'matterItem', editable: false },
-    // { key: "submitUser", title: '提交人', dataIndex: 'submitUser' },
-    { key: "matterDate", title: '委托时间', dataIndex: 'matterDate', editable: true },
+    {
+      key: "matterDate", title: '委托时间', dataIndex: 'matterDate', inputType: 'date', editable: true, sorter: (a: any, b: any) => new Date(a.matterDate).getTime() - new Date(b.matterDate).getTime(),
+      render: (text: string) => dayjs(text).format("YYYY-MM-DD")
+    },
     {
       key: "operation",
       title: '操作',
@@ -277,6 +275,7 @@ export default function Search() {
       },
     },
   ];
+
   const mergedColumns: TableProps<any>['columns'] = columns.map((col) => {
     if (!col.editable) {
       return col;
@@ -285,13 +284,14 @@ export default function Search() {
       ...col,
       onCell: (record: any) => ({
         record,
-        inputType: col.dataIndex === 'age' ? 'number' : 'text',
+        inputType: col.inputType,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
       }),
     };
   });
+
   return (
     <Flex gap="middle" vertical justify="space-between" style={{ height: "100%" }}>
       <Flex gap="middle" vertical>
@@ -310,9 +310,6 @@ export default function Search() {
             <Form.Item name="matterUnit">
               <Input allowClear placeholder="委托单位" />
             </Form.Item>
-            {/* <Form.Item name="direction">
-              <Input allowClear placeholder="敌情方向" />
-            </Form.Item> */}
             <Form.Item name="matterItem">
               <Select
                 placeholder="委托事项"
@@ -352,20 +349,6 @@ export default function Search() {
             rowClassName="editable-row"
           />
         </Form>
-        {/* <Table<any>
-          pagination={{
-            current: params.current,
-            pageSize: params.size,
-            total: total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: showTotal,
-            onChange: handlePaginationChange,
-          }}
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataSource}
-        /> */}
       </Flex>
       <Space>
         <Button type="primary" onClick={handleSelectAll}>

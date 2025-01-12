@@ -8,11 +8,12 @@ import { BankFilled, FileOutlined, LockOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { mainApi } from "@/request/api";
 import type { GetProp, TimeRangePickerProps } from 'antd';
-
+import { useNavigate } from "react-router-dom";
 type RangePickerType = GetProp<TimeRangePickerProps, 'value'>;
 
 const View = () => {
   const { notification } = App.useApp()
+  const navigateTo = useNavigate()
   // const dispatch = useDispatch();
 
   // 对num的操作
@@ -113,10 +114,10 @@ const View = () => {
     type === 1 ? setSearchValueOneData(res) : setSearchValueTwoData(res);
   };
 
-  const handleSearchById = async (value = '') => {
-    const res = await mainApi.getCombinationDataById(`matterNo=${value}`);
-    setSearchDataById(res);
-  };
+  // const handleSearchById = async (value = '') => {
+  //   const res = await mainApi.getCombinationDataById(`matterNo=${value}`);
+  //   setSearchDataById(res);
+  // };
 
   useEffect(() => {
     const beginDate = totalDataRange?.[0]?.format("YYYY-MM-DD HH:mm:ss") || '';
@@ -139,7 +140,7 @@ const View = () => {
   useEffect(() => {
     handleSearch('', 1);
     handleSearch('', 2);
-    handleSearchById();
+    // handleSearchById();
   }, []);
 
   return (
@@ -160,7 +161,7 @@ const View = () => {
                   marginBottom: '24px'
                 }}
               >
-                <Space align="center">
+                <Space align="center" onClick={() => navigateTo("/data/search")} style={{ cursor: 'pointer' }}>
                   {item.icon}
                   <Statistic title={item.title} value={item.value} />
                 </Space>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+import { useNavigate } from 'react-router-dom';
 interface LineChartProps {
   style?: React.CSSProperties;
   data: {
@@ -10,8 +11,9 @@ interface LineChartProps {
   }
 }
 const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
+  const navigateTo = useNavigate();
   const chartRef = useRef(null);
-  if(!data) return <div>暂无数据</div>
+  if (!data) return <div>暂无数据</div>
   const { date, total, totalCapacity } = data
   useEffect(() => {
     if (!chartRef.current) return;
@@ -63,20 +65,36 @@ const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
         {
           name: '检材总数',
           type: 'line',
-          data: total
+          data: total,
+          // 添加点击事件
+          emphasis: {
+            focus: 'series'
+          }
         },
         {
           name: '检材总容量',
           type: 'line',
           yAxisIndex: 1,
-          data: totalCapacity
+          data: totalCapacity,
+          emphasis: {
+            focus: 'series'
+          }
         }
       ]
     };
 
-    
-
     chart.setOption(option);
+
+    // 添加点击事件监听
+    // chart.on('click', (params) => {
+    //   if (params.componentType === 'series') {
+    //     const date = params.name; // 获取到点击的x轴的数据
+    //     navigateTo("/data/search", {
+    //       state: { date }
+    //     });
+    //   }
+    // });
+
     const handleResize = () => {
       chart.resize();
     };
@@ -85,8 +103,6 @@ const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
       chart.dispose();
       window.removeEventListener('resize', handleResize);
     };
-
-
 
   }, [data])
 

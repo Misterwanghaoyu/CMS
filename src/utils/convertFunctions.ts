@@ -57,104 +57,104 @@ const convertRoutesToBreadcrumbItems = (routes: RouteDataItemType[], pathnames: 
   }
 };
 
-// Excel相关方法
-const exportAsExcel = (exportData1: any[], exportData2: any[], matterIds: number[]) => {
-  const workbook = new ExcelJS.Workbook()
-  const sheet1 = workbook.addWorksheet("sheet1")
-  const sheet2 = workbook.addWorksheet("sheet2")
+// // Excel相关方法
+// const exportAsExcel = (exportData1: any[], exportData2: any[], matterIds: number[]) => {
+//   const workbook = new ExcelJS.Workbook()
+//   const sheet1 = workbook.addWorksheet("sheet1")
+//   const sheet2 = workbook.addWorksheet("sheet2")
 
-  // 处理第一个sheet
-  const headers = Object.keys(exportData1[0])
-  sheet1.addRow(headers)
-  exportData1.forEach((row) => {
-    const values = Object.values(row)
-    sheet1.addRow(values)
-  })
+//   // 处理第一个sheet
+//   const headers = Object.keys(exportData1[0])
+//   sheet1.addRow(headers)
+//   exportData1.forEach((row) => {
+//     const values = Object.values(row)
+//     sheet1.addRow(values)
+//   })
 
-  // 处理第二个sheet
-  const headers2 = Object.keys(exportData2[0])
-  sheet2.addRow(headers2)
-  exportData2.forEach((row) => {
-    const values = Object.values(row)
-    sheet2.addRow(values)
-  })
+//   // 处理第二个sheet
+//   const headers2 = Object.keys(exportData2[0])
+//   sheet2.addRow(headers2)
+//   exportData2.forEach((row) => {
+//     const values = Object.values(row)
+//     sheet2.addRow(values)
+//   })
 
-  workbook.xlsx.writeBuffer()
-    .then((buffer) => {
-      let file = new Blob([buffer], { type: "application/octet-stream" })
-      FileSaver.saveAs(file, "ExcelJS.xlsx")
-      logsApi.insertExportMatterLog(matterIds)
-    })
-    .catch(err => console.log(err))
-}
+//   workbook.xlsx.writeBuffer()
+//     .then((buffer) => {
+//       let file = new Blob([buffer], { type: "application/octet-stream" })
+//       FileSaver.saveAs(file, "ExcelJS.xlsx")
+//       logsApi.insertExportMatterLog(matterIds)
+//     })
+//     .catch(err => console.log(err))
+// }
 
-const parseExcel = async (e: ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files
-  if (!files) return
+// const parseExcel = async (e: ChangeEvent<HTMLInputElement>) => {
+//   const files = e.target.files
+//   if (!files) return
 
-  return new Promise((resolve, reject) => {
-    const workbook = new ExcelJS.Workbook()
-    const fileReader = new FileReader()
+//   return new Promise((resolve, reject) => {
+//     const workbook = new ExcelJS.Workbook()
+//     const fileReader = new FileReader()
 
-    fileReader.onload = async (ev: ProgressEvent<FileReader>) => {
-      try {
-        // @ts-ignore
-        await workbook.xlsx.load(ev.target!.result)
-        const worksheet1 = workbook.getWorksheet(1)
-        const worksheet2 = workbook.getWorksheet(2)
+//     fileReader.onload = async (ev: ProgressEvent<FileReader>) => {
+//       try {
+//         // @ts-ignore
+//         await workbook.xlsx.load(ev.target!.result)
+//         const worksheet1 = workbook.getWorksheet(1)
+//         const worksheet2 = workbook.getWorksheet(2)
 
-        if (!worksheet1) {
-          reject(new Error('工作表1不存在'))
-          return
-        }
-        if (!worksheet2) {
-          reject(new Error('工作表2不存在'))
-          return
-        }
+//         if (!worksheet1) {
+//           reject(new Error('工作表1不存在'))
+//           return
+//         }
+//         if (!worksheet2) {
+//           reject(new Error('工作表2不存在'))
+//           return
+//         }
 
-        const headers1: ExcelJS.CellValue[] = []
-        const headers2: ExcelJS.CellValue[] = []
-        const data1 = []
-        const data2 = []
+//         const headers1: ExcelJS.CellValue[] = []
+//         const headers2: ExcelJS.CellValue[] = []
+//         const data1 = []
+//         const data2 = []
 
-        // 获取表头
-        worksheet1.getRow(1).eachCell(cell => headers1.push(cell.value))
-        worksheet2.getRow(1).eachCell(cell => headers2.push(cell.value))
+//         // 获取表头
+//         worksheet1.getRow(1).eachCell(cell => headers1.push(cell.value))
+//         worksheet2.getRow(1).eachCell(cell => headers2.push(cell.value))
 
-        // 获取数据
-        for (let rowNumber = 2; rowNumber <= worksheet1.rowCount; rowNumber++) {
-          const rowData = {}
-          worksheet1.getRow(rowNumber).eachCell((cell, colNumber) => {
-            //@ts-ignore
-            rowData[headers1[colNumber - 1]] = cell.value
-          })
-          data1.push(rowData)
-        }
+//         // 获取数据
+//         for (let rowNumber = 2; rowNumber <= worksheet1.rowCount; rowNumber++) {
+//           const rowData = {}
+//           worksheet1.getRow(rowNumber).eachCell((cell, colNumber) => {
+//             //@ts-ignore
+//             rowData[headers1[colNumber - 1]] = cell.value
+//           })
+//           data1.push(rowData)
+//         }
 
-        for (let rowNumber = 2; rowNumber <= worksheet2.rowCount; rowNumber++) {
-          const rowData = {}
-          worksheet2.getRow(rowNumber).eachCell((cell, colNumber) => {
-            //@ts-ignore
-            rowData[headers2[colNumber - 1]] = cell.value
-          })
-          data2.push(rowData)
-        }
+//         for (let rowNumber = 2; rowNumber <= worksheet2.rowCount; rowNumber++) {
+//           const rowData = {}
+//           worksheet2.getRow(rowNumber).eachCell((cell, colNumber) => {
+//             //@ts-ignore
+//             rowData[headers2[colNumber - 1]] = cell.value
+//           })
+//           data2.push(rowData)
+//         }
 
-        resolve([data1, data2])
-      } catch (error) {
-        reject(error)
-      }
-    }
+//         resolve([data1, data2])
+//       } catch (error) {
+//         reject(error)
+//       }
+//     }
 
-    fileReader.onerror = () => reject(new Error('文件读取失败'))
-    fileReader.readAsArrayBuffer(files[0])
-  })
-}
+//     fileReader.onerror = () => reject(new Error('文件读取失败'))
+//     fileReader.readAsArrayBuffer(files[0])
+//   })
+// }
 
 export {
   convertRoutesToMenuItems,
   convertRoutesToBreadcrumbItems,
   convertRoutesToRouteItems,
-  exportAsExcel,
-  parseExcel
+  // exportAsExcel,
+  // parseExcel
 }

@@ -1,21 +1,34 @@
 
-import { Layout, Button, Dropdown, Space, theme, Typography, ConfigProvider, App, Flex, Image } from 'antd';
-import React, { useState } from 'react';
-import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import MainMenu from "@/components/MainMenu"
-import logo from "@/assets/images/logo.png";
-import { ArrowLeftOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
-import CustomBreadcrumb from '@/components/CustomBreadcrumb';
-import { convertRoutesToBreadcrumbItems } from '@/utils/convertFunctions';
-import { routeData } from '@/router';
-const { Header, Content, Sider } = Layout;
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import zhCN from 'antd/locale/zh_CN';
+import { routeData } from '@/router';
+import React, { useState } from 'react';
+import logo from "@/assets/images/logo.png";
+import MainMenu from "@/components/MainMenu"
+import CustomBreadcrumb from '@/components/CustomBreadcrumb';
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { convertRoutesToBreadcrumbItems } from '@/utils/convertFunctions';
+import { ArrowLeftOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
+import { Layout, Button, Dropdown, Space, theme, Typography, ConfigProvider, App, Flex, Image, ConfigProviderProps } from 'antd';
+
+const { Header, Content, Sider } = Layout;
 const siderBackgroundColor = "rgb(24,144,255)"
 const itemSelectedBg = "rgb(9,109,217)"
+const layoutStyle = {
+  borderRadius: 8,
+  overflow: 'hidden',
+  height: '100%',
+  maxHeight: '100%',
+};
+
+dayjs.locale('zh-cn');
+
 const View: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const navigateTo = useNavigate()
+  const location = useLocation();
   const userInfo = JSON.parse(localStorage.getItem("userInfo")!)
+  const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -26,22 +39,14 @@ const View: React.FC = () => {
       icon: <LogoutOutlined />,
     },
   ];
-  // 退出
-  const onClick = ({ key }: { key: string }) => {
-    localStorage.removeItem("userInfo")
-    localStorage.removeItem("token")
-    navigateTo("/login");
-  };
-  const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
   const breadcrumbs: any[] = [];
   convertRoutesToBreadcrumbItems(routeData, pathnames, breadcrumbs)
-
-  const layoutStyle = {
-    borderRadius: 8,
-    overflow: 'hidden',
-    height: '100%',
-    maxHeight: '100%',
+  // 退出
+  const onClick = () => {
+    localStorage.removeItem("userInfo")
+    localStorage.removeItem("token")
+    navigateTo("/login");
   };
   return (
     <ConfigProvider locale={zhCN}

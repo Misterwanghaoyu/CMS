@@ -1,13 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import { useNavigate } from 'react-router-dom';
 
 interface PieChartProps {
   style?: React.CSSProperties;
-  data: {value:number,name:string}[]
-  name:string
+  data: { value: number, name: string }[]
+  name: string
 }
 
-const PieChart: React.FC<PieChartProps> = ({ style,name,data }) => {
+const PieChart: React.FC<PieChartProps> = ({ style, name, data }) => {
+  const navigateTo = useNavigate();
   const chartRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!chartRef.current) return;
@@ -41,6 +43,7 @@ const PieChart: React.FC<PieChartProps> = ({ style,name,data }) => {
           //   position: 'center'
           // },
           emphasis: {
+            // focus: 'series',
             label: {
               show: true,
               fontSize: 20,
@@ -87,7 +90,15 @@ const PieChart: React.FC<PieChartProps> = ({ style,name,data }) => {
     };
 
     chart.setOption(option);
-
+    // 添加点击事件监听
+    // chart.on('click', (params) => {
+    //   if (params.componentType === 'series') {
+    //     const cracked = params.name; // 获取到点击的x轴的数据
+    //     navigateTo("/data/search", {
+    //       state: { cracked }
+    //     });
+    //   }
+    // });
     const handleResize = () => {
       chart.resize();
     };

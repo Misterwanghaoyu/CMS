@@ -15,6 +15,7 @@ import { convertRoutesToRouteItems } from "@/utils/convertFunctions";
 import { Skeleton } from "antd";
 import NotFoundPage from "@/views/404";
 import NoPermissionPage from "@/views/403";
+import Backup from "@/views/backup";
 const Main = lazy(() => import("../views/main"))
 const Data = lazy(() => import("../views/case"))
 const User = lazy(() => import("../views/user"))
@@ -122,16 +123,17 @@ export const routeData: RouteDataItemType[] = [
       }
     ],
   },
-  // {
-  //   label: '数据备份与修复',
-  //   key: 'backup',
-  //   path: 'backup',
-  //   component: withLoadingComponent(<Backup />),
-  //   meta: {
-  //     title: '数据备份与修复',
-  //     icon: <CloudUploadOutlined />
-  //   },
-  // }
+  {
+    label: '数据备份与修复',
+    key: 'backup',
+    path: 'backup',
+    icon: <CloudUploadOutlined />,
+    component: withLoadingComponent(<Backup />),
+    meta: {
+      title: '数据备份与修复',
+      
+    },
+  }
 ]
 const routes: RouteItemType[] = [
 

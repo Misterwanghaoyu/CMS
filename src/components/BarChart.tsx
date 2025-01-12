@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+import { useNavigate } from 'react-router-dom';
 export default function BarChart({ data }: { data: { keywords: string[], total: number[] } }) {
+  const navigateTo = useNavigate();
   const chartRef = useRef(null);
   if (!data) return <div>暂无数据</div>
   const { keywords, total } = data
@@ -13,7 +15,7 @@ export default function BarChart({ data }: { data: { keywords: string[], total: 
         data: keywords,
         name: '敌情方向'
       },
-      yAxis:{
+      yAxis: {
         type: 'value',
         name: '数量',
         min: 0
@@ -47,6 +49,9 @@ export default function BarChart({ data }: { data: { keywords: string[], total: 
       ],
       series: [
         {
+          // emphasis: {
+          //   focus: 'series'
+          // },
           data: total,
           type: 'bar',
           animationDelay: function (idx: number) {
@@ -62,6 +67,14 @@ export default function BarChart({ data }: { data: { keywords: string[], total: 
     };
 
     chart.setOption(option);
+    // chart.on('click', (params) => {
+    //   if (params.componentType === 'series') {
+    //     const direction = params.name; // 获取到点击的x轴的数据
+    //     navigateTo("/data/search", {
+    //       state: { direction }
+    //     });
+    //   }
+    // });
     const handleResize = () => {
       chart.resize();
     };

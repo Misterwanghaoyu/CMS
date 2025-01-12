@@ -309,9 +309,7 @@ export default function DataUpdatePage() {
               </Form.Item>
               <Form.Item>
                 <Space style={{ display: "flex", justifyContent: "right" }}>
-                  <Popconfirm title="保存修改" description="确定保存?" onConfirm={() => expandForm.submit()}>
-                    <Button type="primary">保存</Button>
-                  </Popconfirm>
+                <Button type="primary" onClick={() => expandForm.submit()}>保存</Button>
                   <Button onClick={() => {
                     setExpandedRowKeys([]);
                     setExpandedRecord(null);

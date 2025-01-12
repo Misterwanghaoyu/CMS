@@ -1,12 +1,9 @@
 import React from 'react';
 import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
 const NoPermissionPage: React.FC = () => {
   const navigateTo = useNavigate()
-
   return (
-
     <Result
       status="403"
       title="403"

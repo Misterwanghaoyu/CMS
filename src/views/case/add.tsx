@@ -1,20 +1,22 @@
-import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex, App, AutoComplete, AutoCompleteProps, Upload, UploadProps, Popover } from 'antd';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
-import DecryptionForm from '@/components/DecryptionForm';
-import { UploadOutlined } from '@ant-design/icons';
-import { parseExcel } from '@/utils/convertFunctions';
-import { caseApi } from '@/request/api';
-import { MatterItemType } from '@/utils/enum';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import { caseApi } from '@/request/api';
+import { MatterItemType } from '@/utils/enum';
+import { downLoadFile } from '@/utils/Functions';
+import { useCallback, useMemo, useState } from 'react'
+import DecryptionForm from '@/components/DecryptionForm';
+import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
+import { Space, Button, Row, Col, Input, Select, DatePicker, Form, Typography, Flex, App, AutoComplete, AutoCompleteProps, Upload, UploadProps, Popover } from 'antd';
+
 export default function DataAddPage() {
   const [form] = Form.useForm();
   const { notification } = App.useApp();
   const { username } = JSON.parse(localStorage.getItem("userInfo")!)
-
   const [commissionMatters, setCommissionMatters] = useState<MatterItemType>()
   const [commissionMattersDisabled, setCommissionMattersDisabled] = useState(false)
+  const [autocompleteOptions, setAutocompleteOptions] = useState<AutoCompleteProps['options']>([]);
+
   const handleCancle = () => {
     setCommissionMatters(undefined)
     form.resetFields()
@@ -33,39 +35,6 @@ export default function DataAddPage() {
       description: error.message || '导入失败'
     })
   }
-
-  // const importExcel = async (e: ChangeEvent<HTMLInputElement>) => {
-  //   try {
-  //     const result = await parseExcel(e) as [any[], any[]];
-  //     const [judicialData, decryptionData] = result;
-
-  //     if (judicialData.length > 0) {
-  //       const res = await caseApi.importJudicialExcel(judicialData)
-  //       if (res.code === 0) {
-  //         handleImportSuccess()
-  //       } else {
-  //         handleImportError(res)
-  //       }
-  //     }
-
-  //     if (decryptionData.length > 0) {
-  //       const res = await caseApi.importDecryptionExcel(decryptionData)
-  //       if (res.code === 0) {
-  //         handleImportSuccess()
-  //       } else {
-  //         handleImportError(res)
-  //       }
-  //     }
-  //   } catch (err: any) {
-  //     handleImportError(err)
-  //   }
-  // }
-
-  const whichForm = useMemo(() => {
-    if (commissionMatters === MatterItemType.judicial) return <JudicialIdentificationForm />
-    if (commissionMatters === MatterItemType.decryption) return <DecryptionForm form={form} />
-    return <></>
-  }, [commissionMatters])
 
   const handleAddCase = async (caseForm: any) => {
     const matterNo = form.getFieldValue('matterNo')
@@ -117,8 +86,55 @@ export default function DataAddPage() {
     //   })
     // }
   }
-  const [autocompleteOptions, setAutocompleteOptions] = useState<AutoCompleteProps['options']>([]);
 
+  const handleMatterNoSelect = async (value: string) => {
+    const res = await caseApi.getByMatterNo(`matterNo=${value}`);
+    const { matterUnit, matterItem, matterDate } = res[0];
+    setCommissionMattersDisabled(true)
+    setCommissionMatters(matterItem)
+    form.setFieldsValue({
+      matterUnit,
+      matterItem,
+      matterDate: dayjs(matterDate)
+    });
+
+  }
+  const handleExportTemplate = async (matterItem: number) => {
+    const res = await caseApi.exportMatterTemplate(`matterItem=${matterItem}`, { responseType: 'blob' })
+    downLoadFile(res)
+    notification.success({
+      message: '成功',
+      description: '模板已导出'
+    });
+  }
+  const getUploadProps = (matterItem: number): UploadProps => ({
+    name: 'file',
+    action: `${import.meta.env.VITE_APP_BASEAPI}/api/file/importMatter`,
+    headers: {
+      authorization: localStorage.getItem('token') || ''
+    },
+    accept: '.xlsx, .xls',
+    data: {
+      matterItem
+    },
+    onChange(info) {
+      if (info.file.status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === 'done') {
+        if (info.file.response.code === 0) handleImportSuccess(info.file.response.message)
+        else handleImportError(info.file.response)
+      } else if (info.file.status === 'error') {
+        handleImportError(info.file.response)
+      } else if (info.file.status === 'removed') {
+      }
+    },
+  });
+  const whichForm = useMemo(() => {
+    if (commissionMatters === MatterItemType.judicial) return <JudicialIdentificationForm />
+    if (commissionMatters === MatterItemType.decryption) return <DecryptionForm form={form} />
+    return <></>
+  }, [commissionMatters])
   const handleMatterNoChange = useCallback(
     debounce(async (value: string) => {
       if (!value) {
@@ -148,43 +164,6 @@ export default function DataAddPage() {
     }, 1000),
     [form]
   );
-
-  const handleMatterNoSelect = async (value: string) => {
-    const res = await caseApi.getByMatterNo(`matterNo=${value}`);
-    const { matterUnit, matterItem, matterDate } = res[0];
-    setCommissionMattersDisabled(true)
-    setCommissionMatters(matterItem)
-    form.setFieldsValue({
-      matterUnit,
-      matterItem,
-      matterDate: dayjs(matterDate)
-    });
-
-  }
-  const getUploadProps = (matterItem: number): UploadProps => ({
-    name: 'file',
-    action: `${import.meta.env.VITE_APP_BASEAPI}/api/file/importMatter`,
-    headers: {
-      authorization: localStorage.getItem('token') || ''
-    },
-    accept: '.xlsx, .xls',
-    data: {
-      matterItem
-    },
-    onChange(info) {
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === 'done') {
-        if (info.file.response.code === 0) handleImportSuccess(info.file.response.message)
-        else handleImportError(info.file.response)
-      } else if (info.file.status === 'error') {
-        handleImportError(info.file.response)
-      } else if (info.file.status === 'removed') {
-      }
-    },
-  });
-
   return (
     <Form
       layout="vertical"
@@ -196,18 +175,29 @@ export default function DataAddPage() {
     >
       <Flex justify='space-between'>
         <Typography.Title level={5} style={{ margin: "0 0 10px 0" }}>基本信息</Typography.Title>
-        <Popover content={
-          <Space direction='vertical'>
-            <Upload {...getUploadProps(1)}>
-              <Button icon={<UploadOutlined />}>导入司法鉴定（Excel）</Button>
-            </Upload>
-            <Upload {...getUploadProps(2)}>
-              <Button icon={<UploadOutlined />}>导入破译解密（Excel）</Button>
-            </Upload>
-          </Space>
-        } trigger="hover">
-          <Button>导入文件</Button>
-        </Popover>
+
+        <Space>
+          <Popover content={
+            <Space direction='vertical'>
+              <Button icon={<DownloadOutlined />} onClick={() => handleExportTemplate(1)}>导出司法鉴定模板</Button>
+              <Button icon={<DownloadOutlined />} onClick={() => handleExportTemplate(2)}>导出破译解密模板</Button>
+            </Space>
+          } trigger="hover">
+            <Button>导出模板</Button>
+          </Popover>
+          <Popover content={
+            <Space direction='vertical'>
+              <Upload {...getUploadProps(1)}>
+                <Button icon={<UploadOutlined />}>导入司法鉴定（Excel）</Button>
+              </Upload>
+              <Upload {...getUploadProps(2)}>
+                <Button icon={<UploadOutlined />}>导入破译解密（Excel）</Button>
+              </Upload>
+            </Space>
+          } trigger="hover">
+            <Button>导入文件</Button>
+          </Popover>
+        </Space>
       </Flex>
 
       <Row gutter={16} justify="space-between">
