@@ -106,22 +106,26 @@ instance.interceptors.response.use(res => {
     // 对返回的数据进行处理
     if (res.data.code === 0) {
         let { data } = res.data
-        console.log("原响应体数据", data);
-        if (data instanceof Array) {
-            if (data[0] instanceof Object) {
-                data = data.map((item: any, index: number) => {
-                    item = formatData(item)
-                    return {
-                        ...item,
-                        key: index
-                    }
-                })
+        if (data) {
+            console.log("原响应体数据", data);
+            if (data instanceof Array) {
+                if (data[0] instanceof Object) {
+                    data = data.map((item: any, index: number) => {
+                        item = formatData(item)
+                        return {
+                            ...item,
+                            key: index
+                        }
+                    })
+                }
             }
+            else {
+                data = formatData(data)
+            }
+            console.log("处理后的响应体数据", data);
+        } else {
+            console.log("data为空");
         }
-        else {
-            data = formatData(data)
-        }
-        console.log("处理后的响应体数据", data);
         return Promise.resolve(data)
     } else {
         notification.error({
