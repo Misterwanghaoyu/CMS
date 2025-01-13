@@ -59,7 +59,7 @@ const mainApi = {
 const backupApi = {
   scheduleBackup: (params: any): Promise<any> => request.post("/api/backup/schedule", params),
   getCurrentTask: (): Promise<any> => request.get("/api/backup/getCurrentTask"),
-  
+  backupImmediately: (): Promise<any> => request.get("/api/backup/manual"),
 }
 export {
   caseApi,

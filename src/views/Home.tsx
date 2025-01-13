@@ -1,8 +1,10 @@
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
-import zhCN from 'antd/locale/zh_CN';
+import 'moment/locale/zh-cn'
+import moment from 'moment';
 import { routeData } from '@/router';
+import zhCN from 'antd/es/locale/zh_CN';
 import React, { useState } from 'react';
 import logo from "@/assets/images/logo.png";
 import MainMenu from "@/components/MainMenu"
@@ -22,6 +24,7 @@ const layoutStyle = {
   maxHeight: '100%',
 };
 
+moment.locale('zh-cn')
 dayjs.locale('zh-cn');
 
 const View: React.FC = () => {

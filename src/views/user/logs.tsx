@@ -1,10 +1,7 @@
 import { logsApi } from '@/request/api';
-import { exportAsExcel } from '@/utils/convertFunctions'
 import { OperType } from '@/utils/enum';
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
-import { App, Button, Flex, Form, Popconfirm, Space, Table, TableColumnsType, Tag, Typography } from 'antd'
+import { App, Flex, Form, Table, TableColumnsType, Tag } from 'antd'
 import { TableRowSelection } from 'antd/es/table/interface';
-import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
@@ -74,7 +71,7 @@ export default function Logs() {
       title: '操作类型',
       dataIndex: 'operType',
       render: (_, record) => {
-        switch(record.operType){
+        switch (record.operType) {
           case OperType.add: return <Tag color="blue">新增</Tag>;
           case OperType.update: return <Tag color="green">修改</Tag>;
           case OperType.delete: return <Tag color="red">删除</Tag>;
