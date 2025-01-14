@@ -45,7 +45,7 @@ interface UserDataType {
   sex: number
   email: string
   remark: string
-  roleName: string
+  roleId: number
 }
 
 // 日志项类型

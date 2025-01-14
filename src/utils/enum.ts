@@ -21,11 +21,6 @@ enum OperType {
   query = 4,
   other = 5
 }
-// 角色类型
-enum RoleType {
-  admin = 24,
-  user = 25
-}
 // 是否破解
 enum CrackedType {
   yes = "是",
@@ -37,6 +32,5 @@ export {
   SexType,
   IdType,
   OperType,
-  RoleType,
   CrackedType
 }

@@ -8,6 +8,8 @@ const caseApi = {
   // 查询 
   getAll: (): Promise<any> => request.get("/api/matter/list"),
   getByMatterNo: (query: string): Promise<any> => request.get("/api/matter/getByMatterNo?" + query),
+  getOneByMatterNo: (query: string): Promise<any> => request.get("/api/matter/getOneByMatterNo?" + query),
+
   // getJudicialById: (query: string): Promise<any> => request.get("/api/matter/getJudicialInfo?" + query),
   // getDecryptionById: (query: string): Promise<any> => request.get("/api/matter/getDecryptionInfo?" + query),
   getJudicialMatterNo: (query: string): Promise<any> => request.get("/api/matter/getJudicialMatterNo?" + query),

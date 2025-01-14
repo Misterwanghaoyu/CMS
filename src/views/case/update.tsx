@@ -61,8 +61,8 @@ export default function DataUpdatePage() {
 
   // 方法定义
   const refetchData = async () => {
-    const commonFieldsRes=await caseApi.getByMatterNo(`matterNo=${location.state.matterNo}`);
-    const { matterNo, matterUnit, matterItem, matterDate, matterId } = commonFieldsRes[0];
+    const commonFieldsRes=await caseApi.getOneByMatterNo(`matterNo=${location.state.matterNo}`);
+    const { matterNo, matterUnit, matterItem, matterDate, matterId } = commonFieldsRes;
     commonFieldsForm.setFieldsValue({
       matterId,
       matterNo,

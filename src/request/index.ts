@@ -1,4 +1,4 @@
-import { MatterItemType, IdType, RoleType, SexType, CrackedType } from "@/utils/enum";
+import { MatterItemType, IdType, SexType, CrackedType } from "@/utils/enum";
 import { notification } from "antd";
 import axios from "axios"
 import dayjs from 'dayjs';
@@ -36,15 +36,25 @@ const formatReqData = (data: any) => {
     if (data.idType) {
         data.idType = idType === IdType.idCard ? 1 : 2
     }
-    // // 角色
-    const roleName = data.roleName
-    if (roleName) {
-        data.roleName = roleName === RoleType.admin ? "管理员" : "用户"
-    }
     // 性别
     const sex = data.sex
     if (data.sex) {
         data.sex = sex === SexType.male ? 1 : 2
+    }
+    return data
+}
+const formatResData = (data: any) => {
+    if (data.matterItem) {
+        data.matterItem = data.matterItem === 1 ? MatterItemType.judicial : MatterItemType.decryption
+    }
+    if (data.cracked) {
+        data.cracked = data.cracked === 1 ? CrackedType.yes : CrackedType.no
+    }
+    if (data.idType) {
+        data.idType = data.idType === 1 ? IdType.idCard : IdType.passport
+    }
+    if (data.sex) {
+        data.sex = data.sex === 1 ? SexType.male : SexType.female
     }
     return data
 }
@@ -53,12 +63,9 @@ instance.interceptors.request.use(config => {
     // 对请求头进行处理
     config.headers.Authorization = localStorage.getItem("token")
     config.headers["Content-Type"] = "application/json"
-
-
     if (config.method === "post") {
         // 对请求体进行处理
         let { data } = config
-        console.log("原请求体数据", data);
         if (data.judicialList) {
             data.judicialList = data.judicialList.map((item: any) => formatReqData(item))
         }
@@ -74,32 +81,10 @@ instance.interceptors.request.use(config => {
 }, err => {
     return Promise.reject(err)
 });
-const formatData = (data: any) => {
-    // if (data.matterDate) {
-    //     data.matterDate = dayjs(data.matterDate).format("YYYY-MM-DD")
-    // }
-    if (data.matterItem) {
-        data.matterItem = data.matterItem === 1 ? MatterItemType.judicial : MatterItemType.decryption
-    }
-    if (data.cracked) {
-        data.cracked = data.cracked === 1 ? CrackedType.yes : CrackedType.no
-    }
-    if (data.idType) {
-        data.idType = data.idType === 1 ? IdType.idCard : IdType.passport
-    }
-    // if (data.roleId) {
-    //     data.roleId = data.roleId === 24 ? RoleType.admin : RoleType.user
-    // }
-    // if(data.roleName){
-    //     data.roleName = data.roleName === "admin" ? RoleType.admin : RoleType.user
-    // }
-    if (data.sex) {
-        data.sex = data.sex === 1 ? SexType.male : SexType.female
-    }
-    return data
-}
+
 // 响应拦截器
 instance.interceptors.response.use(res => {
+
     if (res.config.responseType === "blob") {
         return res
     }
@@ -107,11 +92,10 @@ instance.interceptors.response.use(res => {
     if (res.data.code === 0) {
         let { data } = res.data
         if (data) {
-            console.log("原响应体数据", data);
             if (data instanceof Array) {
                 if (data[0] instanceof Object) {
                     data = data.map((item: any, index: number) => {
-                        item = formatData(item)
+                        item = formatResData(item)
                         return {
                             ...item,
                             key: index
@@ -120,7 +104,7 @@ instance.interceptors.response.use(res => {
                 }
             }
             else {
-                data = formatData(data)
+                data = formatResData(data)
             }
             console.log("处理后的响应体数据", data);
         } else {
@@ -128,6 +112,15 @@ instance.interceptors.response.use(res => {
         }
         return Promise.resolve(data)
     } else {
+        
+        const errorCodePrefix = res.data.code.toString().substring(0, 3);
+        if (errorCodePrefix === "401") {
+            setTimeout(() => {
+                localStorage.removeItem("token")
+                localStorage.removeItem("userInfo")
+                window.location.href = "/login"
+            }, 3000)
+        }
         notification.error({
             message: '错误',
             description: res.data.message,

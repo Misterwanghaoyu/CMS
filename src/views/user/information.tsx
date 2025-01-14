@@ -11,12 +11,10 @@ import {
   Popconfirm,
   App,
   Flex,
-  Typography,
   Descriptions,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-
 export default function Information() {
   // 状态管理
   const [params, setParams] = useState({
@@ -30,6 +28,7 @@ export default function Information() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
+  const [roleList, setRoleList] = useState<any[]>([]);
 
   // const detailInformationItem = useMemo(() => {
   //   if (!selectedRowItem) return []
@@ -53,30 +52,11 @@ export default function Information() {
       dataIndex: "username",
       key: "username",
     },
-    // {
-    //   title: "联系方式",
-    //   dataIndex: "mobile",
-    //   key: "mobile",
-    // },
-    // {
-    //   title: "姓名",
-    //   dataIndex: "realName",
-    //   key: "realName",
-    // },
-    // {
-    //   title: "性别",
-    //   dataIndex: "sex",
-    //   key: "sex",
-    // },
-    // {
-    //   title: "邮箱",
-    //   dataIndex: "email",
-    //   key: "email",
-    // },
     {
       title: "权限",
-      dataIndex: "roleName",
-      key: "roleName",
+      dataIndex: "roleId",
+      key: "roleId",
+      render: (_, record) => roleList.find(item => item.value === record.roleId)?.label
     },
     {
       title: "操作",
@@ -129,8 +109,6 @@ export default function Information() {
   };
 
   const handleEdit = (item: UserDataType) => {
-    console.log(item);
-
     form.setFieldsValue(item);
     setIsUpdate(true);
     setIsModalOpen(true);
@@ -166,6 +144,12 @@ export default function Information() {
 
   // 副作用
   useEffect(() => {
+    userApi.getAllRole().then(res => {
+      setRoleList(res.map((item: any) => ({
+        value: item.roleId,
+        label: item.roleName
+      })))
+    })
     reFetch();
   }, []);
 
@@ -216,6 +200,7 @@ export default function Information() {
         setIsModalOpen={setIsModalOpen}
         form={form}
         reFetch={reFetch}
+        roleList={roleList}
       />
 
       {selectedRowItem && (
@@ -227,7 +212,7 @@ export default function Information() {
             <Descriptions.Item label="性别">{selectedRowItem.sex}</Descriptions.Item>
             <Descriptions.Item label="联系方式">{selectedRowItem.mobile}</Descriptions.Item>
             <Descriptions.Item label="邮箱">{selectedRowItem.email}</Descriptions.Item>
-            <Descriptions.Item label="权限">{selectedRowItem.roleName}</Descriptions.Item>
+            <Descriptions.Item label="权限">{roleList.find(item => item.value === selectedRowItem.roleId)?.label}</Descriptions.Item>
           </Descriptions>
         </Card>
       )}

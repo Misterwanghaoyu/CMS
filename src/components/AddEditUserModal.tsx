@@ -1,7 +1,6 @@
 import { userApi } from '@/request/api'
-import { RoleType, SexType } from '@/utils/enum'
-import { Modal, Input, Select, Space, Button, Form, message, FormInstance, App, notification } from 'antd'
-import { useEffect, useState } from 'react'
+import { SexType } from '@/utils/enum'
+import { Modal, Input, Select, Space, Button, Form, FormInstance, App } from 'antd'
 
 interface PropsType {
   selectedRowItem: UserDataType | null
@@ -10,8 +9,9 @@ interface PropsType {
   form: FormInstance<UserDataType>
   setIsModalOpen: Function,
   reFetch: Function
+  roleList:{value:number,label:string}[]
 }
-const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, isUpdate, form, setIsModalOpen, reFetch }) => {
+const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, isUpdate, form, setIsModalOpen, reFetch,roleList }) => {
   const { notification } = App.useApp();
 
   const handleCancel = () => {
@@ -41,16 +41,7 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
     }
   }
 
-  const [roleList, setRoleList] = useState<any[]>([]);
-  // 获取角色列表
-  useEffect(() => {
-    userApi.getAllRole().then(res => {
-      setRoleList(res.map((item: any) => ({
-        value: item.roleId,
-        label: item.roleName
-      })))
-    })
-  }, [])
+
   return (
     <Modal
       title={isUpdate ? "编辑用户" : "新增用户"}
@@ -82,7 +73,7 @@ const AddEditUserModal: React.FC<PropsType> = ({ selectedRowItem, isModalOpen, i
         </Form.Item>
         <Form.Item
           label="权限"
-          name="roleName"
+          name="roleId"
           rules={[{ required: true, message: "请选择权限" }]}
         >
           <Select
