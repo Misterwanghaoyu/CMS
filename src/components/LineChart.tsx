@@ -86,14 +86,14 @@ const LineChart: React.FC<LineChartProps> = ({ style, data }) => {
     chart.setOption(option);
 
     // 添加点击事件监听
-    // chart.on('click', (params) => {
-    //   if (params.componentType === 'series') {
-    //     const date = params.name; // 获取到点击的x轴的数据
-    //     navigateTo("/data/search", {
-    //       state: { date }
-    //     });
-    //   }
-    // });
+    chart.on('click', (params) => {
+      if (params.componentType === 'series') {
+        const date = params.name; // 获取到点击的x轴的数据
+        navigateTo("/data/search", {
+          state: { date }
+        });
+      }
+    });
 
     const handleResize = () => {
       chart.resize();

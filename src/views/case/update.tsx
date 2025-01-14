@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import JudicialIdentificationForm from '@/components/JudicialIdentificationForm';
 import DecryptionForm from '@/components/DecryptionForm';
 import { DeleteOutlined } from '@ant-design/icons';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { caseApi } from '@/request/api';
 import { CrackedType, IdType, MatterItemType } from '@/utils/enum';
 import dayjs from 'dayjs';

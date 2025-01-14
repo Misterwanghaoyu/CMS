@@ -55,35 +55,64 @@ export default function Search() {
     setDataSource(res)
   };
 
+  const Func1 = async (matterItem: string, direction: string) => {
+    const res = await caseApi.combinationQuery({
+      matterItem
+    });
+    const promises = res.map(async (item: any) => {
+      if (item.matterItem === MatterItemType.judicial) {
+        const res1 = await caseApi.getJudicialMatterNo(`matterNo=${item.matterNo}`);
+        return res1.some((item1: any) => item1.direction === direction) ? item : null;
+      } else {
+        const res2 = await caseApi.getDecryptionMatterNo(`matterNo=${item.matterNo}`);
+        return res2.some((item2: any) => item2.direction === direction) ? item : null;
+      }
+    });
+    const results = await Promise.all(promises);
+    const arr = results.filter(item => item !== null);
+    setDataSource(arr);
+  }
+  const Func2 = async (matterItem: string, cracked: string) => {
+    if(cracked==="破解为'是'"){
+      cracked="是"
+    }else {
+      cracked="否"
+    }
+    const res = await caseApi.combinationQuery({
+      matterItem
+    });
+    const promises = res.map(async (item: any) => {
+      const res2 = await caseApi.getDecryptionMatterNo(`matterNo=${item.matterNo}`);
+      return res2.some((item1: any) => item1.cracked === cracked) ? item : null;
+    }); 
+    const results = await Promise.all(promises);
+    const arr = results.filter(item => item !== null);
+    setDataSource(arr);
+  }
   useEffect(() => {
-    // if (location.state) {
-    //   const { date, direction, cracked } = location.state
-    //   if (date) {
-    //     caseApi.combinationQuery({
-    //       beginDate: date,
-    //       endDate: date
-    //     }).then((res) => {
-    //       setDataSource(res)
-    //     })
-    //   }
-    //   if (direction) {
-    //     caseApi.combinationQuery({
-    //       direction: direction
-    //     }).then((res) => {
-    //       setDataSource(res)
-    //     })
-    //   }   
-    //   if (cracked) {
-    //     caseApi.combinationQuery({
-    //       cracked: cracked
-    //     }).then((res) => {
-    //       setDataSource(res)
-    //     })
-    //   }
+    if (location.state) {
+      const { matterItem, date, direction, cracked } = location.state
+      if (matterItem) {
+        searchForm.setFieldValue('matterItem', matterItem)
 
+      }
+      if (date) {
+        searchForm.setFieldValue('matterItem', MatterItemType.judicial)
+        searchForm.setFieldValue('matterDateRange', [dayjs(date), dayjs(date)])
+      }
+      if (direction) {
+        Func1(matterItem, direction)
 
-    //   return
-    // }
+        return
+      }
+      if (cracked) {
+        Func2(matterItem, cracked)
+        return
+
+      }
+      searchForm.submit()
+      return
+    }
     refreshData();
   }, []);
 

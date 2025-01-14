@@ -43,7 +43,6 @@ const PieChart: React.FC<PieChartProps> = ({ style, name, data }) => {
           //   position: 'center'
           // },
           emphasis: {
-            // focus: 'series',
             label: {
               show: true,
               fontSize: 20,
@@ -91,14 +90,14 @@ const PieChart: React.FC<PieChartProps> = ({ style, name, data }) => {
 
     chart.setOption(option);
     // 添加点击事件监听
-    // chart.on('click', (params) => {
-    //   if (params.componentType === 'series') {
-    //     const cracked = params.name; // 获取到点击的x轴的数据
-    //     navigateTo("/data/search", {
-    //       state: { cracked }
-    //     });
-    //   }
-    // });
+    chart.on('click', (params) => {
+      if (params.componentType === 'series') {
+        const cracked = params.name; // 获取到点击的x轴的数据
+        navigateTo("/data/search", {
+          state: { cracked }
+        });
+      }
+    });
     const handleResize = () => {
       chart.resize();
     };

@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { mainApi } from "@/request/api";
 import type { GetProp, TimeRangePickerProps } from 'antd';
 import { useNavigate } from "react-router-dom";
+import { MatterItemType } from "@/utils/enum";
 type RangePickerType = GetProp<TimeRangePickerProps, 'value'>;
 
 const View = () => {
@@ -63,13 +64,15 @@ const View = () => {
       title: '司法鉴定总数量',
       value: 0,
       icon: <BankFilled style={{ fontSize: 24 }} />,
-      color: '#F0EDF9'
+      color: '#F0EDF9',
+      matterItem: MatterItemType.judicial
     },
     {
       title: '破译解密总数量',
       value: 0,
       icon: <LockOutlined style={{ fontSize: 24 }} />,
-      color: '#EDF2F9'
+      color: '#EDF2F9',
+      matterItem: MatterItemType.decryption
     },
   ]);
 
@@ -161,7 +164,9 @@ const View = () => {
                   marginBottom: '24px'
                 }}
               >
-                <Space align="center" onClick={() => navigateTo("/data/search")} style={{ cursor: 'pointer' }}>
+                <Space align="center" onClick={() => navigateTo("/data/search", {
+                  state: { matterItem: item.matterItem }
+                })} style={{ cursor: 'pointer' }}>
                   {item.icon}
                   <Statistic title={item.title} value={item.value} />
                 </Space>
@@ -193,7 +198,7 @@ const View = () => {
                   onChange={(e) => e.target.value === '' && handleSearch('', 1)}
                   placeholder="请输入敌情方向"
                 />
-                <BarChart data={searchValueOneData} />
+                <BarChart data={searchValueOneData} matterItem={MatterItemType.judicial} />
               </Flex>
             </Card>
           </Col>
@@ -230,7 +235,7 @@ const View = () => {
                   onChange={(e) => e.target.value === '' && handleSearch('', 2)}
                   placeholder="请输入敌情方向"
                 />
-                <BarChart data={searchValueTwoData} />
+                <BarChart data={searchValueTwoData} matterItem={MatterItemType.decryption} />
               </Flex>
             </Card>
           </Col>
