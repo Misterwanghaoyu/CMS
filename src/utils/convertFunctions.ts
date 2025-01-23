@@ -1,16 +1,5 @@
-import { ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import ExcelJS from 'exceljs'
-import FileSaver from "file-saver";
-import { message } from "antd";
-import { logsApi } from "@/request/api";
-
-
-
 // 路由相关转换方法
 function convertRoutesToMenuItems(routes: RouteDataItemType[], parentPath = '') {
-  const navigateTo = useNavigate()
-
   const menuItems = routes.map(route => {
     const fullPath = parentPath ? `${parentPath}/${route.path}` : route.path;
     if (route.hidden) return
@@ -56,6 +45,11 @@ const convertRoutesToBreadcrumbItems = (routes: RouteDataItemType[], pathnames: 
     }
   }
 };
+export {
+  convertRoutesToMenuItems,
+  convertRoutesToBreadcrumbItems,
+  convertRoutesToRouteItems,
+}
 
 // // Excel相关方法
 // const exportAsExcel = (exportData1: any[], exportData2: any[], matterIds: number[]) => {
@@ -150,11 +144,3 @@ const convertRoutesToBreadcrumbItems = (routes: RouteDataItemType[], pathnames: 
 //     fileReader.readAsArrayBuffer(files[0])
 //   })
 // }
-
-export {
-  convertRoutesToMenuItems,
-  convertRoutesToBreadcrumbItems,
-  convertRoutesToRouteItems,
-  // exportAsExcel,
-  // parseExcel
-}
